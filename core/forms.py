@@ -41,19 +41,19 @@ class StudentForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         stype = cleaned.get('student_type')
-        parent = cleaned.get('parent')
-
         if stype == 'child':
-            if not parent:
+            if not cleaned.get('parent'):
                 self.add_error('parent', 'Для ребёнка выберите родителя.')
-        else:
-            uname = cleaned.get('account_username')
-            pwd = cleaned.get('account_password')
+        elif stype == 'adult':
+            uname = cleaned.get('account_username') or ''
+            pwd   = cleaned.get('account_password') or ''
             if not uname:
                 self.add_error('account_username', 'Укажите логин взрослого.')
+            # требовать пароль только при создании нового account_user
             if not self.instance.pk or not self.instance.account_user:
                 if not pwd:
                     self.add_error('account_password', 'Укажите пароль.')
+            # уникальность логина
             if uname:
                 qs = User.objects.filter(username=uname)
                 if self.instance.account_user:
@@ -61,6 +61,7 @@ class StudentForm(forms.ModelForm):
                 if qs.exists():
                     self.add_error('account_username', 'Такой логин уже существует.')
         return cleaned
+
 
     # добавление абонемента при сохранении ученика
     def save(self, commit=True):

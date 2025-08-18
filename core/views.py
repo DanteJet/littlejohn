@@ -160,6 +160,7 @@ def child_create(request):
             form.save()
             messages.success(request, 'Ученик создан')
             return redirect('children_list')
+        return render(request, 'admin/child_create.html', {'form': form})
     else:
         form = StudentForm()
     return render(request, 'admin/child_create.html', {'form': form})

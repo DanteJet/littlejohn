@@ -24,30 +24,6 @@ class Child(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}".strip()
 
-    def save(self, commit=True):
-        obj = super().save(commit=False)
-
-        # Если это взрослый, то убираем родителя
-        if obj.is_adult:
-            obj.parent = None
-
-        # Если абонемент не был создан, создаём новый
-        if not obj.subscription:
-            subscription_type = SubscriptionType.objects.first()  # Используем первый тип абонемента по умолчанию
-            subscription = Subscription.objects.create(
-                child=obj,
-                sub_type=subscription_type,
-                lessons_remaining=subscription_type.lessons_count,
-                price=subscription_type.price
-            )
-            obj.subscription = subscription
-
-        if commit:
-            obj.save()
-
-        return obj
-
-
 class SubscriptionType(models.Model):
     name = models.CharField(max_length=100)
     lessons_count = models.PositiveIntegerField(default=8)

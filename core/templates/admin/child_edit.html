@@ -14,7 +14,9 @@
     <div class="card-body">
       <form method="post" novalidate class="grid-form">
         {% csrf_token %}
-
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
         <!-- Тип ученика -->
         <div class="row g-3 align-items-center mb-3">
             <div class="col-12 col-sm-4">

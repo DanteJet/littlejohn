@@ -5,13 +5,16 @@
 <div class="container my-4" style="max-width: 840px;">
   <div class="card shadow-sm border-0">
     <div class="card-header d-flex align-items-center justify-content-between" style="background:#d8f3dc;">
-      <h5 class="m-0">Создать ребёнка</h5>
+      <h5 class="m-0">Создать ученика</h5>
       <a class="btn btn-sm btn-outline-secondary" href="{% url 'children_list' %}" title="К списку детей">← Назад</a>
     </div>
 
     <div class="card-body">
       <form method="post" novalidate class="grid-form">
         {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
         <!-- Тип ученика -->
         <div class="row g-3 align-items-center mb-3">
             <div class="col-12 col-sm-4">
