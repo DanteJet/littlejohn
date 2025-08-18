@@ -52,6 +52,7 @@
                   <th>Логин</th>
                   <th>Email</th>
                   <th class="text-center">Детей</th>
+                  <th style="width:1%; white-space:nowrap;">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -62,6 +63,15 @@
                     <td>{{ p.username }}</td>
                     <td>{{ p.email|default:"—" }}</td>
                     <td class="text-center"><span class="badge text-bg-primary">{{ p.children_count }}</span></td>
+                    <td class="text-nowrap">
+                      <form method="post" action="{% url 'parent_delete' p.id %}" class="m-0 d-inline"
+                            onsubmit="return confirm('Удалить родителя «{{ p.username }}» и всех его детей? Это действие необратимо.');">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-danger" title="Удалить родителя">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    </td>
                   </tr>
                   <!-- раскрывающаяся строка с детьми -->
                   <tr class="collapse bg-light" id="children-{{ p.id }}">

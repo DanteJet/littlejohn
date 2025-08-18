@@ -9,6 +9,8 @@ from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
+from django.views.decorators.http import require_POST
+
 from .forms import (
     AddVisitForm, StudentForm, ParentCreateForm,
     SubscriptionForm, SubscriptionTypeForm, TrainingSessionForm, IssueSubscriptionForm
@@ -339,3 +341,27 @@ def issue_subscription(request, pk):
     else:
         form = IssueSubscriptionForm()
     return render(request, 'admin/issue_subscription.html', {'form': form, 'child': child})
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def child_delete(request, pk):
+    child = get_object_or_404(Child, pk=pk)
+    # по ТЗ удаляем только ученика; его аккаунт-взрослого (если был) оставляем
+    name = str(child)
+    child.delete()  # Subscription удалится каскадом, M2M из занятий — тоже
+    messages.success(request, f'Ученик «{name}» удалён.')
+    return redirect('children_list')
+
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def parent_delete(request, user_id):
+    # удаляем только пользователей из группы Parent
+    parent = get_object_or_404(User, pk=user_id, groups__name='Parent')
+    username = parent.username
+    # FK Child.parent(on_delete=CASCADE) — все дети удалятся автоматически
+    parent.delete()
+    messages.success(request, f'Родитель «{username}» и его дети удалены.')
+    return redirect('parent_create')

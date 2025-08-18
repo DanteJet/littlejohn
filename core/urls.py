@@ -30,5 +30,7 @@ urlpatterns = [
     path('my/schedule/', views.my_schedule, name='my_schedule'),
     path('my/children/', views.my_children, name='my_children'),
 
+    path('children/<int:pk>/delete/', views.child_delete, name='child_delete'),
+    path('parents/<int:user_id>/delete/', views.parent_delete, name='parent_delete'),
     
 ]

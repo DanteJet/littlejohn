@@ -44,4 +44,10 @@
 .input-group .form-control { border-left: 0; }
 .input-group-text { background: #f1fff7; border-color: #ced4da; }
 
+/* Ровные действия в таблицах */
+.actions .btn { vertical-align: middle; }
+.actions form { display: inline-flex; align-items: center; }
+.table td .btn { line-height: 1.2; } /* выравниваем высоту sm-кнопок */
+
+
 

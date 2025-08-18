@@ -52,23 +52,40 @@
           {% else %}—{% endif %}
         </td>
         <td>
-          <a class="btn btn-sm btn-outline-secondary me-1" href="{% url 'child_edit' child.id %}" title="Редактировать"><i class="bi bi-pencil"></i></a>
-          {% if sub %}
-            <form method="post" action="{% url 'add_visit' %}" class="d-inline">{% csrf_token %}
-              <input type="hidden" name="child_id" value="{{ child.id }}">
-              <button class="btn btn-sm btn-outline-primary" onclick="return confirm('Добавить посещение для {{ child.first_name }}?')">+ посещение</button>
-            </form>
-            <form method="post" action="{% url 'mark_payment' %}" class="d-inline ms-1">{% csrf_token %}
-              <input type="hidden" name="child_id" value="{{ child.id }}">
-              <button class="btn btn-sm btn-success">Оплата</button>
-            </form>
-            {% else %}
-            <a class="btn btn-sm btn-outline-success"
-               href="{% url 'issue_subscription' child.id %}">
-               Выдать абонемент
-            </a>
-          {% endif %}
-        </td>
+            <div class="d-flex flex-wrap align-items-center gap-2 actions">
+              {# редактировать #}
+              <a class="btn btn-sm btn-outline-secondary"
+                 href="{% url 'child_edit' child.id %}"
+                 title="Редактировать"><i class="bi bi-pencil"></i></a>
+          
+              {% with sub=subs|get_item:child.id %}
+                {% if sub %}
+                  {# + посещение #}
+                  <form method="post" action="{% url 'add_visit' %}" class="m-0 d-inline-flex align-items-center">{% csrf_token %}
+                    <input type="hidden" name="child_id" value="{{ child.id }}">
+                    <button class="btn btn-sm btn-outline-primary" title="Добавить посещение">+ посещение</button>
+                  </form>
+          
+                  {# оплата произведена #}
+                  <form method="post" action="{% url 'mark_payment' %}" class="m-0 d-inline-flex align-items-center">{% csrf_token %}
+                    <input type="hidden" name="child_id" value="{{ child.id }}">
+                    <button class="btn btn-sm btn-success" title="Отметить оплату">Оплата</button>
+                  </form>
+                {% else %}
+                  {# выдать абонемент #}
+                  <a class="btn btn-sm btn-outline-success"
+                     href="{% url 'issue_subscription' child.id %}">Выдать абонемент</a>
+                {% endif %}
+              {% endwith %}
+          
+              {# удалить ученика #}
+              <form method="post" action="{% url 'child_delete' child.id %}" class="m-0 d-inline-flex align-items-center"
+                    onsubmit="return confirm('Удалить ученика «{{ child.first_name }} {{ child.last_name }}»? Это действие необратимо.');">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-danger" title="Удалить"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+          </td>
       </tr>
       {% endwith %}
     {% endfor %}
