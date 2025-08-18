@@ -62,6 +62,11 @@
               <input type="hidden" name="child_id" value="{{ child.id }}">
               <button class="btn btn-sm btn-success">Оплата</button>
             </form>
+            {% else %}
+            <a class="btn btn-sm btn-outline-success"
+               href="{% url 'issue_subscription' child.id %}">
+               Выдать абонемент
+            </a>
           {% endif %}
         </td>
       </tr>

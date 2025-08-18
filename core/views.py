@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from .forms import (
     AddVisitForm, StudentForm, ParentCreateForm,
-    SubscriptionForm, SubscriptionTypeForm, TrainingSessionForm
+    SubscriptionForm, SubscriptionTypeForm, TrainingSessionForm, IssueSubscriptionForm
 )
 
 from .models import Child, Subscription, SubscriptionType, TrainingSession
@@ -141,10 +141,15 @@ def session_add_child(request, pk, child_id):
 @login_required
 @user_passes_test(is_admin)
 def children_list(request):
-    children = Child.objects.select_related('parent').prefetch_related('subscription')
-    # Для быстрого доступа к абонементам
-    subs = {s.child_id: s for s in Subscription.objects.select_related('sub_type', 'child')}
-    return render(request, 'admin/children_list.html', {'children': children, 'subs': subs, 'add_visit_form': AddVisitForm()})
+    children = Child.objects.select_related('parent', 'account_user').order_by('first_name', 'last_name')
+    subs_qs = Subscription.objects.filter(child__in=children).select_related('sub_type', 'child')
+    subs = {s.child_id: s for s in subs_qs}
+
+    return render(request, 'admin/children_list.html', {
+        'children': children,
+        'subs': subs,
+        'add_visit_form': AddVisitForm(),
+    })
 
 @login_required
 @user_passes_test(is_admin)
@@ -308,3 +313,35 @@ def child_edit(request, pk):
     else:
         form = StudentForm(instance=child)
     return render(request, 'admin/child_edit.html', {'form': form, 'child': child})
+
+
+@login_required
+@user_passes_test(is_admin)
+def issue_subscription(request, pk):
+    child = get_object_or_404(Child, pk=pk)
+    if request.method == 'POST':
+        form = IssueSubscriptionForm(request.POST)
+        if form.is_valid():
+            sub_type = form.cleaned_data['sub_type']
+            price = form.cleaned_data['price'] or sub_type.price
+            mark_paid = form.cleaned_data['mark_paid']
+
+            # создаём или обновляем
+            sub, _created = Subscription.objects.update_or_create(
+                child=child,
+                defaults={
+                    'sub_type': sub_type,
+                    'lessons_remaining': sub_type.lessons_count if mark_paid else 0,
+                    'price': price,
+                    'paid': bool(mark_paid),
+                }
+            )
+            if mark_paid and sub.lessons_remaining == 0:
+                sub.lessons_remaining = sub.sub_type.lessons_count
+                sub.save()
+
+            messages.success(request, 'Абонемент выдан/обновлён')
+            return redirect('children_list')
+    else:
+        form = IssueSubscriptionForm()
+    return render(request, 'admin/issue_subscription.html', {'form': form, 'child': child})

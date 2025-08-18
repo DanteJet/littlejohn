@@ -63,15 +63,16 @@ class StudentForm(forms.ModelForm):
         return cleaned
 
     # добавление абонемента при сохранении ученика
-def save(self, commit=True):
+    def save(self, commit=True):
         obj = super().save(commit=False)
         stype = self.cleaned_data['student_type']
         obj.is_adult = (stype == 'adult')
 
+        # логика аккаунта взрослого (как у тебя было)
         if obj.is_adult:
             uname = self.cleaned_data.get('account_username')
             email = self.cleaned_data.get('account_email')
-            pwd = self.cleaned_data.get('account_password')
+            pwd   = self.cleaned_data.get('account_password')
 
             if obj.account_user:
                 u = obj.account_user
@@ -91,21 +92,24 @@ def save(self, commit=True):
             obj.parent = None
         else:
             obj.account_user = None
-
-        # Создание абонемента, если он не существует
-        if not obj.subscription:
-            subscription_type = SubscriptionType.objects.first()  # Выбираем тип по умолчанию
-            subscription = Subscription.objects.create(
-                child=obj,
-                sub_type=subscription_type,
-                lessons_remaining=subscription_type.lessons_count,
-                price=subscription_type.price
-            )
-            obj.subscription = subscription
-
         if commit:
             obj.save()
 
+        # >>> ГАРАНТИЯ АБОНЕМЕНТА <<<
+        # если у ученика нет абонемента — создаём его с типом по умолчанию
+        # (берём первый тип; при желании позже можно выбрать в UI)
+        try:
+            _ = obj.subscription  # вызовет Subscription.DoesNotExist, если нет
+        except Subscription.DoesNotExist:
+            sub_type = SubscriptionType.objects.first()
+            if sub_type:
+                Subscription.objects.create(
+                    child=obj,
+                    sub_type=sub_type,
+                    lessons_remaining=sub_type.lessons_count,
+                    price=sub_type.price,
+                    paid=False,  # пока не оплачен
+                )
         return obj
 
 
@@ -147,3 +151,12 @@ class TrainingSessionForm(forms.ModelForm):
 
 class AddVisitForm(forms.Form):
     child_id = forms.IntegerField(widget=forms.HiddenInput)
+
+class IssueSubscriptionForm(forms.Form):
+    sub_type = forms.ModelChoiceField(
+        queryset=SubscriptionType.objects.all(),
+        label='Тип абонемента',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    price = forms.DecimalField(label='Цена', max_digits=10, decimal_places=2, required=False)
+    mark_paid = forms.BooleanField(label='Сразу отметить как оплачен', required=False)

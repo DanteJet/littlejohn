@@ -29,7 +29,16 @@
         
         <!-- Блок для ребёнка (родитель) -->
         <div id="block-child">
-            <!-- здесь уже есть ваш блок "Родитель" как раньше -->
+             <!-- Родитель -->
+            <div class="row g-3 align-items-center mb-3">
+                <div class="col-12 col-sm-4">
+                <label class="form-label mb-0" for="{{ form.parent.id_for_label }}">Родитель</label>
+                </div>
+                <div class="col-12 col-sm-8">
+                {{ form.parent }}
+                {% if form.parent.errors %}<div class="invalid-feedback d-block">{{ form.parent.errors|striptags }}</div>{% endif %}
+                </div>
+            </div>
         </div>
         
         <!-- Блок для взрослого (логин/email/пароль) -->
@@ -48,17 +57,6 @@
             </div>
         </div>
   
-
-        <!-- Родитель -->
-        <div class="row g-3 align-items-center mb-3">
-          <div class="col-12 col-sm-4">
-            <label class="form-label mb-0" for="{{ form.parent.id_for_label }}">Родитель</label>
-          </div>
-          <div class="col-12 col-sm-8">
-            {{ form.parent }}
-            {% if form.parent.errors %}<div class="invalid-feedback d-block">{{ form.parent.errors|striptags }}</div>{% endif %}
-          </div>
-        </div>
 
         <!-- Имя -->
         <div class="row g-3 align-items-center mb-3">
