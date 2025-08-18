@@ -17,6 +17,7 @@ from .forms import (
 )
 
 from .models import Child, Subscription, SubscriptionType, TrainingSession
+from collections import defaultdict, OrderedDict
 
 # --- роли ---
 
@@ -60,6 +61,8 @@ def sessions_week(request):
     sessions = (TrainingSession.objects
                 .filter(start__date__gte=days[0], start__date__lt=end)
                 .prefetch_related('participants'))
+    
+    slots_by_day = _group_timeslots(sessions)
 
     form = TrainingSessionForm()
     context = {
@@ -69,6 +72,7 @@ def sessions_week(request):
         'start': start,
         'prev_start': start - timedelta(days=7),
         'next_start': start + timedelta(days=7),
+        'slots_by_day': slots_by_day,
     }
     return render(request, 'admin/sessions_week.html', context)
 
@@ -97,6 +101,7 @@ def sessions_month(request):
     sessions = (TrainingSession.objects
                 .filter(start__year=year, start__month=month)
                 .prefetch_related('participants'))
+    slots_by_day = _group_timeslots(sessions)
 
     # Соседние месяцы
     if month == 1:
@@ -108,7 +113,7 @@ def sessions_month(request):
         next_year, next_month = year + 1, 1
     else:
         next_year, next_month = year, month + 1
-
+    
     return render(request, 'admin/sessions_month.html', {
         'days': days,
         'month': month,
@@ -116,6 +121,7 @@ def sessions_month(request):
         'sessions': sessions,
         'prev_year': prev_year, 'prev_month': prev_month,
         'next_year': next_year, 'next_month': next_month,
+        'slots_by_day': slots_by_day,
     })
 
 @login_required
@@ -365,3 +371,37 @@ def parent_delete(request, user_id):
     parent.delete()
     messages.success(request, f'Родитель «{username}» и его дети удалены.')
     return redirect('parent_create')
+
+def _group_timeslots(sessions_qs):
+    """
+    На вход: queryset TrainingSession с prefetch_related('participants') и order_by('start').
+    На выход: dict {date: [ {start, end, participants(list), session_ids(list)}... ]}
+    Группирует карточки по (start, end), объединяя участников.
+    """
+    slots_by_day = defaultdict(lambda: OrderedDict())
+    for s in sessions_qs:
+        day = s.start.date()
+        key = (s.start, s.end)
+        if key not in slots_by_day[day]:
+            slots_by_day[day][key] = {
+                'start': s.start,
+                'end': s.end,
+                'participants': {},
+                'session_ids': [s.id],
+            }
+        else:
+            slots_by_day[day][key]['session_ids'].append(s.id)
+
+        # набираем участников без дублей
+        for p in s.participants.all():
+            slots_by_day[day][key]['participants'][p.id] = p
+
+    # превращаем dict участников в список
+    out = {}
+    for day, od in slots_by_day.items():
+        items = []
+        for slot in od.values():
+            slot['participants'] = list(slot['participants'].values())
+            items.append(slot)
+        out[day] = items
+    return out

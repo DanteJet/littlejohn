@@ -8,7 +8,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <link href="{% static 'css/custom.css' %}" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'core/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <script>
     document.addEventListener('click', function(e) {
@@ -42,19 +43,69 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // DOM
+      const slider = document.getElementById('studentType');
+      const knob = slider?.querySelector('.knob');
+      const lblChild = slider?.querySelector('.lbl-child');
+      const lblAdult = slider?.querySelector('.lbl-adult');
+    
       const radios = document.querySelectorAll('input[name="student_type"]');
       const blockChild = document.getElementById('block-child');
       const blockAdult = document.getElementById('block-adult');
     
-      function toggleBlocks() {
-        const val = document.querySelector('input[name="student_type"]:checked')?.value;
-        const isAdult = (val === 'adult');
-        if (blockChild) blockChild.style.display = isAdult ? 'none' : '';
-        if (blockAdult) blockAdult.style.display = isAdult ? '' : 'none';
+      function setActiveLabel(val) {
+        if (!lblChild || !lblAdult) return;
+        if (val === 'adult') {
+          lblChild.classList.remove('active');
+          lblAdult.classList.add('active');
+          slider.classList.add('checked');
+        } else {
+          lblAdult.classList.remove('active');
+          lblChild.classList.add('active');
+          slider.classList.remove('checked');
+        }
       }
+    
+      function setRadio(val) {
+        radios.forEach(r => { if (r.value === val) r.checked = true; });
+      }
+    
+      function toggleBlocks() {
+        const val = document.querySelector('input[name="student_type"]:checked')?.value || 'child';
+        if (blockChild) blockChild.style.display = (val === 'adult') ? 'none' : '';
+        if (blockAdult) blockAdult.style.display = (val === 'adult') ? '' : 'none';
+        setActiveLabel(val);
+      }
+    
+      // Инициализация от текущего значения радиокнопок (серверная initial)
+      const current = document.querySelector('input[name="student_type"]:checked')?.value;
+      setActiveLabel(current || 'child');
+      toggleBlocks();
+    
+      // Клик по слайдеру
+      slider?.addEventListener('click', () => {
+        const val = document.querySelector('input[name="student_type"]:checked')?.value === 'adult' ? 'child' : 'adult';
+        setRadio(val);
+        toggleBlocks();
+      });
+    
+      // Переключение напрямую радиокнопками (если кто-то включит их в DOM)
       radios.forEach(r => r.addEventListener('change', toggleBlocks));
-      toggleBlocks(); // init on load
+    
+      // Показ/скрытие пароля
+      const btn = document.getElementById('togglePassBtn');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const input = btn.parentElement.querySelector('input[type="password"], input[type="text"]');
+          if (!input) return;
+          const isPwd = input.getAttribute('type') === 'password';
+          input.setAttribute('type', isPwd ? 'text' : 'password');
+          btn.innerHTML = isPwd ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+          btn.setAttribute('title', isPwd ? 'Скрыть пароль' : 'Показать пароль');
+        });
+      }
     });
-    </script>     
+    </script>
+      
 </body>
 </html>

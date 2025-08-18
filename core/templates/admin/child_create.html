@@ -18,17 +18,22 @@
         <!-- Тип ученика -->
         <div class="row g-3 align-items-center mb-3">
             <div class="col-12 col-sm-4">
-            <label class="form-label mb-0">Тип ученика</label>
+              <label class="form-label mb-0">Тип ученика</label>
             </div>
             <div class="col-12 col-sm-8">
-            <div class="btn-group" role="group">
-                {% for sub in form.student_type %}
-                {{ sub.tag }}
-                <label class="btn btn-outline-secondary" for="{{ sub.id_for_label }}">{{ sub.choice_label }}</label>
-                {% endfor %}
+              <div id="studentType" class="student-type-toggle" role="button" aria-label="Тип ученика">
+                <div class="knob"></div>
+                <div class="labels">
+                  <span class="lbl-child">Ребёнок</span>
+                  <span class="lbl-adult">Взрослый</span>
+                </div>
+              </div>
+              {# Прячем стандартные радио, но оставляем в DOM #}
+              <div class="d-none">
+                {% for sub in form.student_type %}{{ sub }}{% endfor %}
+              </div>
             </div>
-            </div>
-        </div>
+          </div>
         
         <!-- Блок для ребёнка (родитель) -->
         <div id="block-child">

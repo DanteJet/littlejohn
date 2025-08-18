@@ -1,55 +1,64 @@
 {% extends 'base.html' %}
-{% block content %}
-<h3>Общее расписание (неделя)</h3>
-<div class="d-flex justify-content-between mb-3">
-    <div>
-      <a class="btn btn-outline-secondary" href="?start={{ prev_start|date:'Y-m-d' }}">◀ Пред. неделя</a>
-      <a class="btn btn-outline-secondary" href="?start={{ next_start|date:'Y-m-d' }}">След. неделя ▶</a>
-    </div>
-    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createSession">Добавить занятие</button>
-  </div>
-<div class="collapse mb-4" id="createSession">
-  <div class="card card-body">
-    <form method="post" action="{% url 'session_create' %}">{% csrf_token %}
-      {{ form.as_p }}
-      <button class="btn btn-success">Создать</button>
-    </form>
-  </div>
-</div>
+{% load static %}
+{% load get_item %}
 
-<div class="table-responsive">
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        {% for d in days %}
-          <th>{{ d|date:'D, d.m' }}</th>
-        {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        {% for d in days %}
-          <td style="min-width: 250px">
-            {% for s in sessions %}
-              {% if s.start|date:'Y-m-d' == d|date:'Y-m-d' %}
-                <div class="p-2 mb-2 border rounded">
-                  <div><strong>{{ s.start|date:'H:i' }}–{{ s.end|date:'H:i' }}</strong></div>
-                  <div class="small text-muted">{{ s.notes }}</div>
-                  <div>
-                    Участники:
-                    {% for c in s.participants.all %}
-                      <span class="badge text-bg-success">{{ c.first_name }}</span>
-                    {% empty %}
-                      <span class="text-muted">пока нет</span>
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="m-0">
+      Расписание — неделя
+      {% if week_start and week_end %}
+        {{ week_start|date:"d.m.Y" }}–{{ week_end|date:"d.m.Y" }}
+      {% endif %}
+    </h4>
+
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary"
+         href="{% url 'sessions_week' %}{% if prev_start %}?start={{ prev_start|date:'Y-m-d' }}{% endif %}">
+        ← Предыдущая
+      </a>
+      <a class="btn btn-sm btn-outline-secondary"
+         href="{% url 'sessions_week' %}{% if next_start %}?start={{ next_start|date:'Y-m-d' }}{% endif %}">
+        Следующая →
+      </a>
+    </div>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-7 g-3">
+    {% for day in days %}
+      <div class="col">
+        <div class="fw-semibold mb-2">{{ day|date:"D, d.m" }}</div>
+
+        {% with slots=slots_by_day|get_item:day %}
+          {% if slots %}
+            {% for slot in slots %}
+              <div class="border rounded p-2 mb-2 calendar-slot">
+                <div class="fw-semibold">{{ slot.start|date:"H:i" }}–{{ slot.end|date:"H:i" }}</div>
+
+                <div class="small mt-1">
+                  Участники:
+                  {% if slot.participants %}
+                    {% for p in slot.participants %}
+                      <span class="badge text-bg-success me-1">{{ p.first_name }}</span>
                     {% endfor %}
-                  </div>
+                  {% else %}
+                    <span class="text-muted">пока нет</span>
+                  {% endif %}
+                  {% if slot.session_ids|length > 1 %}
+                    <span class="badge text-bg-warning ms-1">объединено {{ slot.session_ids|length }}</span>
+                  {% endif %}
                 </div>
-              {% endif %}
+
+                {# При необходимости действия делаем через slot.session_ids.0 #}
+                {# <form method="post" ...> <input type="hidden" name="session_id" value="{{ slot.session_ids.0 }}"> ... </form> #}
+              </div>
             {% endfor %}
-          </td>
-        {% endfor %}
-      </tr>
-    </tbody>
-  </table>
+          {% else %}
+            <div class="text-muted small">Нет занятий</div>
+          {% endif %}
+        {% endwith %}
+      </div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}

@@ -13,10 +13,19 @@ class StudentForm(forms.ModelForm):
         choices=(('child','Ребёнок'), ('adult','Взрослый')),
         widget=forms.RadioSelect, label='Тип ученика'
     )
-    account_username = forms.CharField(required=False, label='Логин взрослого')
-    account_email    = forms.EmailField(required=False, label='Email взрослого')
-    account_password = forms.CharField(required=False, widget=forms.PasswordInput, label='Пароль взрослого')
-
+    account_username = forms.CharField(
+        required=False, label='Логин',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Логин'})
+    )
+    account_email    = forms.EmailField(
+        required=False, label='Email',
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email@example.com'})
+    )
+    account_password = forms.CharField(
+        required=False, label='Пароль',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Пароль', 'autocomplete': 'new-password'})
+    )
+    
     class Meta:
         model = Child
         fields = ['student_type', 'parent', 'first_name', 'last_name', 'birth_date', 'gender', 'notes']

@@ -49,5 +49,50 @@
 .actions form { display: inline-flex; align-items: center; }
 .table td .btn { line-height: 1.2; } /* выравниваем высоту sm-кнопок */
 
+/* Toggle-слайдер Ребёнок / Взрослый */
+.student-type-toggle {
+    position: relative;
+    width: 280px; /* можно 240–320 по вкусу */
+    height: 40px;
+    border: 1px solid #ced4da;
+    border-radius: 999px;
+    background: #f8f9fa;
+    display: inline-flex;
+    align-items: center;
+    padding: 3px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .student-type-toggle .knob {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: calc(50% - 6px);
+    height: 34px;
+    background: #d8f3dc; /* светло-зелёный из шапки */
+    border-radius: 999px;
+    transition: transform .2s ease;
+  }
+  .student-type-toggle.checked .knob { transform: translateX(100%); }
+  
+  .student-type-toggle .labels {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    z-index: 1;
+    padding: 0 14px;
+    font-weight: 600;
+  }
+  .student-type-toggle .labels span {
+    font-size: .95rem;
+    color: #6c757d;
+  }
+  .student-type-toggle .labels .active { color: #1b4332; }
+  
+  /* Аккуратные input-group с иконками */
+  .input-group-text i { opacity: .8; }
+  
+  .calendar-slot .badge { margin-right: .25rem; }
+
+
 
 

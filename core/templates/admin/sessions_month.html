@@ -1,29 +1,79 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load get_item %}
+
 {% block content %}
-<h3>Общее расписание (месяц)</h3>
-<div class="d-flex gap-2 mb-3">
-    <a class="btn btn-outline-secondary" href="?year={{ prev_year }}&month={{ prev_month }}">◀ Пред. месяц</a>
-    <a class="btn btn-outline-secondary" href="?year={{ next_year }}&month={{ next_month }}">След. месяц ▶</a>
-  </div>
-<div class="row">
-  {% for d in days %}
-    <div class="col-md-3 mb-3">
-      <div class="border rounded p-2">
-        <div class="fw-bold">{{ d|date:'D, d.m' }}</div>
-        {% for s in sessions %}
-          {% if s.start|date:'Y-m-d' == d|date:'Y-m-d' %}
-            <div class="mt-1 small">
-              {{ s.start|date:'H:i' }}–{{ s.end|date:'H:i' }}:
-              {% for c in s.participants.all %}
-                <span class="badge text-bg-success">{{ c.first_name }}</span>
-              {% empty %}
-                <span class="text-muted">—</span>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="m-0">
+      Расписание — месяц
+      {% if month %}{{ month|date:"F Y" }}{% endif %}
+    </h4>
+
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary"
+         href="{% url 'sessions_month' %}{% if prev_month %}?month={{ prev_month|date:'Y-m' }}{% endif %}">
+        ← Предыдущий
+      </a>
+      <a class="btn btn-sm btn-outline-secondary"
+         href="{% url 'sessions_month' %}{% if next_month %}?month={{ next_month|date:'Y-m' }}{% endif %}">
+        Следующий →
+      </a>
     </div>
-  {% endfor %}
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered align-top">
+      <thead class="table-light">
+        <tr class="text-center">
+          <th>Пн</th>
+          <th>Вт</th>
+          <th>Ср</th>
+          <th>Чт</th>
+          <th>Пт</th>
+          <th>Сб</th>
+          <th>Вс</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for week in weeks %}
+          <tr>
+            {% for day in week %}
+              <td style="width:14.28%; vertical-align: top;"
+                  class="{% if day and month and day|date:'m' != month|date:'m' %}text-muted bg-light{% endif %}">
+                {% if day %}
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-semibold">{{ day|date:"d.m" }}</span>
+                  </div>
+
+                  {% with slots=slots_by_day|get_item:day %}
+                    {% if slots %}
+                      {% for slot in slots %}
+                        <div class="border rounded p-2 mb-2 calendar-slot">
+                          <div class="small fw-semibold">{{ slot.start|date:"H:i" }}–{{ slot.end|date:"H:i" }}</div>
+                          <div class="small mt-1">
+                            {% if slot.participants %}
+                              {% for p in slot.participants %}
+                                <span class="badge text-bg-success me-1">{{ p.first_name }}</span>
+                              {% endfor %}
+                            {% else %}
+                              <span class="text-muted">—</span>
+                            {% endif %}
+                            {% if slot.session_ids|length > 1 %}
+                              <span class="badge text-bg-warning ms-1">объединено {{ slot.session_ids|length }}</span>
+                            {% endif %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                  {% endwith %}
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
