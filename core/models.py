@@ -16,9 +16,6 @@ class Child(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='U')
     notes = models.TextField(blank=True)
 
-    # Связь с абонементом
-    subscription = models.OneToOneField(Subscription, on_delete=models.SET_NULL, null=True, blank=True)
-
     class Meta:
         ordering = ['first_name', 'last_name']
         verbose_name = 'Ученик'

@@ -68,7 +68,7 @@ class StudentForm(forms.ModelForm):
         stype = self.cleaned_data['student_type']
         obj.is_adult = (stype == 'adult')
 
-        # логика аккаунта взрослого (как у тебя было)
+        # логика взрослого аккаунта
         if obj.is_adult:
             uname = self.cleaned_data.get('account_username')
             email = self.cleaned_data.get('account_email')
@@ -91,25 +91,23 @@ class StudentForm(forms.ModelForm):
                 obj.account_user = u
             obj.parent = None
         else:
-            obj.account_user = None
+            obj.account_user = None  # взрослый аккаунт не нужен
+
         if commit:
             obj.save()
 
-        # >>> ГАРАНТИЯ АБОНЕМЕНТА <<<
-        # если у ученика нет абонемента — создаём его с типом по умолчанию
-        # (берём первый тип; при желании позже можно выбрать в UI)
-        try:
-            _ = obj.subscription  # вызовет Subscription.DoesNotExist, если нет
-        except Subscription.DoesNotExist:
-            sub_type = SubscriptionType.objects.first()
-            if sub_type:
-                Subscription.objects.create(
-                    child=obj,
-                    sub_type=sub_type,
-                    lessons_remaining=sub_type.lessons_count,
-                    price=sub_type.price,
-                    paid=False,  # пока не оплачен
-                )
+        # ► ГАРАНТИЯ АБОНЕМЕНТА (создадим, если отсутствует)
+        sub_type = SubscriptionType.objects.first()
+        if sub_type:
+            Subscription.objects.get_or_create(
+                child=obj,
+                defaults={
+                    'sub_type': sub_type,
+                    'lessons_remaining': sub_type.lessons_count,
+                    'price': sub_type.price,
+                    'paid': False
+                }
+            )
         return obj
 
 
