@@ -1,0 +1,47 @@
+/* Сетка формы: ровные лейблы слева, поля справа */
+.grid-form .form-label { font-weight: 600; color: #2d6a4f; }
+.btn-check + .btn { margin-right: .25rem; }
+
+/* Скрываем стандартные стрелки number в разных браузерах */
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+/*.stepper-input { -moz-appearance: textfield; }*/
+
+/* Контейнер степпера */
+.stepper {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid #ced4da;
+  border-radius: .375rem;
+  overflow: hidden;
+  width: 220px;
+  max-width: 100%;
+}
+
+/* Кнопки степпера */
+.stepper-btn {
+  padding: .5rem .75rem;
+  background: #f8f9fa;
+  border: 0;
+  min-width: 42px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.stepper-btn:hover { background: #e9ecef; }
+
+/* Сам input внутри степпера */
+.stepper .stepper-input {
+  border: 0 !important;
+  text-align: center;
+  width: 100%;
+  padding: .5rem .25rem;
+}
+
+/* Input group для цены */
+.input-group .form-control { border-left: 0; }
+.input-group-text { background: #f1fff7; border-color: #ced4da; }
+
+

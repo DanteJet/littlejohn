@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Мое расписание</h3>
+<table class="table table-striped">
+  <thead><tr><th>Дата</th><th>Время</th><th>Дети</th><th>Заметки</th></tr></thead>
+  <tbody>
+    {% for s in sessions %}
+      <tr>
+        <td>{{ s.start|date:'d.m.Y' }}</td>
+        <td>{{ s.start|date:'H:i' }}–{{ s.end|date:'H:i' }}</td>
+        <td>
+          {% for c in s.participants.all %}
+            {% if c.parent_id == user.id %}
+              <span class="badge text-bg-primary">{{ c.first_name }}</span>
+            {% endif %}
+          {% endfor %}
+        </td>
+        <td>{{ s.notes }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4" class="text-muted">Пока занятий нет</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

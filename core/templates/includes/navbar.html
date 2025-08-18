@@ -1,0 +1,33 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light-green">
+    <div class="container">
+      <div class="collapse navbar-collapse show" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          {% if IS_ADMIN %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'sessions_week' %}">Расписание (неделя)</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'sessions_month' %}">Расписание (месяц)</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'children_list' %}">Ученики</a></li>  {# было: Дети #}
+            <li class="nav-item"><a class="nav-link" href="{% url 'subscriptions_list' %}">Абонементы</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'subscription_types' %}">Типы абонементов</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'parent_create' %}">Создать родителя</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'child_create' %}">Создать ученика</a></li>
+          {% elif IS_PARENT %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'my_schedule' %}">Моё расписание</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'my_children' %}">Мои дети</a></li>
+          {% elif IS_STUDENT %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'my_schedule' %}">Моё расписание</a></li>
+          {% endif %}
+        </ul>
+        <div class="d-flex align-items-center ms-auto">
+          <img src="{% static 'img/logo.png' %}" alt="Лого" style="height:36px" class="me-2">
+          <span class="navbar-brand mb-0 h1">Малыш Джон</span>
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'logout' %}" class="ms-3 d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-dark">Выход</button>
+          </form>          
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>

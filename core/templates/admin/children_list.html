@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load get_item %}
+
+{% block content %}
+<h3>Ученики</h3>
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Имя</th>
+      <th>Тип</th>
+      <th>Родитель/Аккаунт</th>
+      <th>Абонемент</th>
+      <th>Посещений</th>
+      <th>Остаток</th>
+      <th>Оплата</th>
+      <th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for child in children %}
+      {% with sub=subs|get_item:child.id %}
+      <tr>
+        <td>{{ child.first_name }} {{ child.last_name }}</td>
+        <td>
+          {% if child.is_adult %}
+            <span class="badge text-bg-secondary">Взрослый</span>
+          {% else %}
+            <span class="badge text-bg-info text-dark">Ребёнок</span>
+          {% endif %}
+        </td>
+        <td>
+            {% if child.is_adult %}
+              {% if child.account_user %}
+                {{ child.account_user.username }} {% if child.account_user.email %}({{ child.account_user.email }}){% endif %}
+              {% else %}
+                Нет аккаунта
+              {% endif %}
+            {% else %}
+              {{ child.parent.username }}{% if child.parent.email %} ({{ child.parent.email }}){% endif %}
+            {% endif %}
+          </td>
+          
+        <td>
+          {% if sub %}{{ sub.sub_type.name }} ({{ sub.sub_type.lessons_count }}) — {{ sub.price }}{% else %}<span class="text-muted">нет</span>{% endif %}
+        </td>
+        <td>{% if sub %}{{ sub.used_lessons }}{% else %}—{% endif %}</td>
+        <td>{% if sub %}{{ sub.lessons_remaining }}{% else %}—{% endif %}</td>
+        <td>
+          {% if sub %}
+            {% if sub.paid %}<span class="badge text-bg-success">Оплачен</span>{% else %}<span class="badge text-bg-danger">Не оплачен</span>{% endif %}
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          <a class="btn btn-sm btn-outline-secondary me-1" href="{% url 'child_edit' child.id %}" title="Редактировать"><i class="bi bi-pencil"></i></a>
+          {% if sub %}
+            <form method="post" action="{% url 'add_visit' %}" class="d-inline">{% csrf_token %}
+              <input type="hidden" name="child_id" value="{{ child.id }}">
+              <button class="btn btn-sm btn-outline-primary" onclick="return confirm('Добавить посещение для {{ child.first_name }}?')">+ посещение</button>
+            </form>
+            <form method="post" action="{% url 'mark_payment' %}" class="d-inline ms-1">{% csrf_token %}
+              <input type="hidden" name="child_id" value="{{ child.id }}">
+              <button class="btn btn-sm btn-success">Оплата</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endwith %}
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Абонементы</h3>
+<table class="table table-striped">
+  <thead><tr>
+    <th>Ребенок</th><th>Тип</th><th>Всего</th><th>Использовано</th><th>Остаток</th><th>Статус</th>
+  </tr></thead>
+  <tbody>
+    {% for s in subs %}
+      <tr>
+        <td>{{ s.child }}</td>
+        <td>{{ s.sub_type.name }}</td>
+        <td>{{ s.total_lessons }}</td>
+        <td>{{ s.used_lessons }}</td>
+        <td>{{ s.lessons_remaining }}</td>
+        <td>{% if s.paid %}<span class="badge text-bg-success">Оплачен</span>{% else %}<span class="badge text-bg-danger">Не оплачен</span>{% endif %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6" class="text-muted">Пока нет абонементов</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

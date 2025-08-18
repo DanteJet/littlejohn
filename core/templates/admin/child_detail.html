@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container my-4" style="max-width: 900px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#d8f3dc;">
+      <h5 class="m-0">Карточка ребёнка</h5>
+        <a class="btn btn-sm btn-outline-primary"
+            href="{% url 'child_edit' child.id %}"
+            title="Редактировать карточку"
+            aria-label="Редактировать карточку">
+            <i class="bi bi-pencil"></i>
+        </a>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <h6 class="text-muted mb-1">Имя</h6>
+          <div class="fs-5">{{ child.first_name }} {{ child.last_name }}</div>
+        </div>
+        <div class="col-md-6">
+          <h6 class="text-muted mb-1">Родитель</h6>
+          <div class="fs-6">{{ child.parent.username }} ({{ child.parent.email|default:"—" }})</div>
+        </div>
+        <div class="col-md-6">
+          <h6 class="text-muted mb-1">Абонемент</h6>
+          {% if sub %}
+            <div>
+              {{ sub.sub_type.name }} — всего {{ sub.total_lessons }}<br>
+              Остаток: <strong>{{ sub.lessons_remaining }}</strong>
+              {% if sub.paid %}<span class="badge text-bg-success ms-2">Оплачен</span>
+              {% else %}<span class="badge text-bg-danger ms-2">Не оплачен</span>{% endif %}
+            </div>
+            <div class="mt-2">
+              <form method="post" action="{% url 'add_visit' %}" class="d-inline">{% csrf_token %}
+                <input type="hidden" name="child_id" value="{{ child.id }}">
+                <button class="btn btn-sm btn-outline-primary">Добавить посещение</button>
+              </form>
+              <form method="post" action="{% url 'mark_payment' %}" class="d-inline ms-1">{% csrf_token %}
+                <input type="hidden" name="child_id" value="{{ child.id }}">
+                <button class="btn btn-sm btn-success">Оплата произведена</button>
+              </form>
+            </div>
+          {% else %}
+            <div class="text-muted">Нет абонемента</div>
+          {% endif %}
+        </div>
+        <div class="col-12">
+          <h6 class="text-muted mb-2 mt-2">Занятия</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0">
+              <thead><tr><th>Дата</th><th>Время</th><th>Примечание</th></tr></thead>
+              <tbody>
+                {% for s in sessions %}
+                  <tr>
+                    <td>{{ s.start|date:'d.m.Y' }}</td>
+                    <td>{{ s.start|date:'H:i' }}–{{ s.end|date:'H:i' }}</td>
+                    <td>{{ s.notes|default:"—" }}</td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="3" class="text-muted">Занятий ещё нет</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

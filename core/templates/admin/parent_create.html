@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-4">
+  <div class="row g-4 align-items-start">
+
+    <!-- Левая колонка: форма создания родителя -->
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header d-flex align-items-center justify-content-between" style="background:#d8f3dc;">
+          <h5 class="m-0">Создать родителя</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Логин</label>
+              <input name="username" class="form-control" required placeholder="login">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input name="email" type="email" class="form-control" placeholder="parent@example.com">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Временный пароль</label>
+              <div class="input-group">
+                <input name="password" type="text" class="form-control" placeholder="например: Temp123!">
+                <button type="button" class="btn btn-outline-secondary" id="genPassBtn">Сгенерировать</button>
+              </div>
+            </div>
+            <div class="text-end">
+              <button class="btn btn-success px-4">Добавить</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка: список родителей -->
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header" style="background:#d8f3dc;">
+          <h5 class="m-0">Родители</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th style="width:40px;"></th>
+                  <th>Логин</th>
+                  <th>Email</th>
+                  <th class="text-center">Детей</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in parents %}
+                  <!-- строка-родитель -->
+                  <tr class="cursor-pointer" data-bs-toggle="collapse" data-bs-target="#children-{{ p.id }}" aria-expanded="false">
+                    <td class="text-muted">▸</td>
+                    <td>{{ p.username }}</td>
+                    <td>{{ p.email|default:"—" }}</td>
+                    <td class="text-center"><span class="badge text-bg-primary">{{ p.children_count }}</span></td>
+                  </tr>
+                  <!-- раскрывающаяся строка с детьми -->
+                  <tr class="collapse bg-light" id="children-{{ p.id }}">
+                    <td></td>
+                    <td colspan="3">
+                      {% if p.children.all %}
+                        <ul class="list-unstyled mb-0">
+                          {% for c in p.children.all %}
+                            <li class="py-1">
+                              <a href="{% url 'child_detail' c.id %}" class="link-dark text-decoration-none">
+                                <li class="py-1">
+                                    <a href="{% url 'child_detail' c.id %}" class="link-dark text-decoration-none">
+                                      {% if c.gender == 'M' %}👦{% elif c.gender == 'F' %}👧{% else %}🧒{% endif %}
+                                      {{ c.first_name }} {{ c.last_name }}
+                                    </a>
+                          {% empty %}
+                            <li class="text-muted">Детей пока нет</li>
+                          {% endfor %}
+                        </ul>
+                      {% else %}
+                        <span class="text-muted">Детей пока нет</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="4" class="text-muted">Пока нет родителей</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- небольшой JS: генерация пароля и стрелочка ▸/▾ -->
+<script>
+document.getElementById('genPassBtn')?.addEventListener('click', function(){
+  const input = this.closest('.input-group').querySelector('input[name="password"]');
+  function rnd(n){ return Math.random().toString(36).slice(2,2+n); }
+  input.value = 'M' + rnd(3) + (Math.floor(10+Math.random()*89)) + '!' + rnd(2).toUpperCase();
+});
+document.addEventListener('show.bs.collapse', e => {
+  const row = e.target.previousElementSibling;
+  if (row && row.querySelector('td')) row.querySelector('td').textContent = '▾';
+});
+document.addEventListener('hide.bs.collapse', e => {
+  const row = e.target.previousElementSibling;
+  if (row && row.querySelector('td')) row.querySelector('td').textContent = '▸';
+});
+</script>
+{% endblock %}

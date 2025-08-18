@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load get_item %}
+{% block content %}
+<h3>Мои дети</h3>
+<table class="table table-striped">
+  <thead><tr><th>Имя</th><th>Абонемент</th><th>Посещено</th><th>Остаток</th><th>Статус</th></tr></thead>
+  <tbody>
+    {% for child in children %}
+      {% with sub=subs|get_item:child.id %}
+      <tr>
+        <td>{{ child.first_name }} {{ child.last_name }}</td>
+        <td>{% if sub %}{{ sub.sub_type.name }} ({{ sub.total_lessons }}){% else %}—{% endif %}</td>
+        <td>{% if sub %}{{ sub.used_lessons }}{% else %}—{% endif %}</td>
+        <td>{% if sub %}{{ sub.lessons_remaining }}{% else %}—{% endif %}</td>
+        <td>
+          {% if sub %}
+            {% if sub.paid %}<span class="badge text-bg-success">Оплачен</span>{% else %}<span class="badge text-bg-danger">Не оплачен</span>{% endif %}
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endwith %}
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

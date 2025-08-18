@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Общее расписание (неделя)</h3>
+<div class="d-flex justify-content-between mb-3">
+    <div>
+      <a class="btn btn-outline-secondary" href="?start={{ prev_start|date:'Y-m-d' }}">◀ Пред. неделя</a>
+      <a class="btn btn-outline-secondary" href="?start={{ next_start|date:'Y-m-d' }}">След. неделя ▶</a>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createSession">Добавить занятие</button>
+  </div>
+<div class="collapse mb-4" id="createSession">
+  <div class="card card-body">
+    <form method="post" action="{% url 'session_create' %}">{% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn btn-success">Создать</button>
+    </form>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        {% for d in days %}
+          <th>{{ d|date:'D, d.m' }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        {% for d in days %}
+          <td style="min-width: 250px">
+            {% for s in sessions %}
+              {% if s.start|date:'Y-m-d' == d|date:'Y-m-d' %}
+                <div class="p-2 mb-2 border rounded">
+                  <div><strong>{{ s.start|date:'H:i' }}–{{ s.end|date:'H:i' }}</strong></div>
+                  <div class="small text-muted">{{ s.notes }}</div>
+                  <div>
+                    Участники:
+                    {% for c in s.participants.all %}
+                      <span class="badge text-bg-success">{{ c.first_name }}</span>
+                    {% empty %}
+                      <span class="text-muted">пока нет</span>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}

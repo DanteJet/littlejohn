@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-4">
+  <div class="row g-4 align-items-start">
+
+    <!-- Левая колонка: форма создания типа -->
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header d-flex align-items-center justify-content-between" style="background:#d8f3dc;">
+          <h5 class="m-0">Создать тип абонемента</h5>
+        </div>
+
+        <div class="card-body">
+          <form method="post" novalidate class="grid-form">
+            {% csrf_token %}
+
+            <!-- Название -->
+            <div class="row g-3 align-items-center mb-2">
+              <div class="col-12 col-sm-4">
+                <label class="form-label mb-0" for="{{ form.name.id_for_label }}">Название</label>
+              </div>
+              <div class="col-12 col-sm-8">
+                {{ form.name }}
+                {% if form.name.errors %}
+                  <div class="invalid-feedback d-block">{{ form.name.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Количество занятий (нестандартный степпер) -->
+            <div class="row g-3 align-items-center mb-2">
+              <div class="col-12 col-sm-4">
+                <label class="form-label mb-0" for="{{ form.lessons_count.id_for_label }}">Кол-во занятий</label>
+              </div>
+              <div class="col-12 col-sm-8">
+                <div class="stepper">
+                  <button type="button" class="stepper-btn" data-step="-1" aria-label="Уменьшить">−</button>
+                  {{ form.lessons_count }}
+                  <button type="button" class="stepper-btn" data-step="1" aria-label="Увеличить">+</button>
+                </div>
+                {% if form.lessons_count.errors %}
+                  <div class="invalid-feedback d-block">{{ form.lessons_count.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Цена (input group с ₽) -->
+            <div class="row g-3 align-items-center mb-3">
+              <div class="col-12 col-sm-4">
+                <label class="form-label mb-0" for="{{ form.price.id_for_label }}">Цена</label>
+              </div>
+              <div class="col-12 col-sm-8">
+                <div class="input-group">
+                  <span class="input-group-text">₽</span>
+                  {{ form.price }}
+                </div>
+                {% if form.price.errors %}
+                  <div class="invalid-feedback d-block">{{ form.price.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="text-end">
+              <button class="btn btn-success px-4" type="submit">Добавить</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка: таблица типов -->
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header" style="background:#d8f3dc;">
+          <h5 class="m-0">Типы абонементов</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th>Название</th>
+                  <th>Занятий</th>
+                  <th>Цена</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for t in types %}
+                  <tr>
+                    <td>{{ t.name }}</td>
+                    <td>{{ t.lessons_count }}</td>
+                    <td>{{ t.price }}</td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="3" class="text-muted">Пока нет типов</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

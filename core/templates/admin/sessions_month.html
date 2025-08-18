@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Общее расписание (месяц)</h3>
+<div class="d-flex gap-2 mb-3">
+    <a class="btn btn-outline-secondary" href="?year={{ prev_year }}&month={{ prev_month }}">◀ Пред. месяц</a>
+    <a class="btn btn-outline-secondary" href="?year={{ next_year }}&month={{ next_month }}">След. месяц ▶</a>
+  </div>
+<div class="row">
+  {% for d in days %}
+    <div class="col-md-3 mb-3">
+      <div class="border rounded p-2">
+        <div class="fw-bold">{{ d|date:'D, d.m' }}</div>
+        {% for s in sessions %}
+          {% if s.start|date:'Y-m-d' == d|date:'Y-m-d' %}
+            <div class="mt-1 small">
+              {{ s.start|date:'H:i' }}–{{ s.end|date:'H:i' }}:
+              {% for c in s.participants.all %}
+                <span class="badge text-bg-success">{{ c.first_name }}</span>
+              {% empty %}
+                <span class="text-muted">—</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-4" style="max-width: 840px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-header d-flex align-items-center justify-content-between" style="background:#d8f3dc;">
+      <h5 class="m-0">Редактировать ребёнка</h5>
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'children_list' %}" title="К списку детей">
+        ← Назад
+      </a>
+    </div>
+
+    <div class="card-body">
+      <form method="post" novalidate class="grid-form">
+        {% csrf_token %}
+
+        <!-- Тип ученика -->
+        <div class="row g-3 align-items-center mb-3">
+            <div class="col-12 col-sm-4">
+            <label class="form-label mb-0">Тип ученика</label>
+            </div>
+            <div class="col-12 col-sm-8">
+            <div class="btn-group" role="group">
+                {% for sub in form.student_type %}
+                {{ sub.tag }}
+                <label class="btn btn-outline-secondary" for="{{ sub.id_for_label }}">{{ sub.choice_label }}</label>
+                {% endfor %}
+            </div>
+            </div>
+        </div>
+        
+        <!-- Блок для ребёнка (родитель) -->
+        <div id="block-child">
+            <!-- здесь уже есть ваш блок "Родитель" как раньше -->
+        </div>
+        
+        <!-- Блок для взрослого (логин/email/пароль) -->
+        <div id="block-adult" style="display:none;">
+            <div class="row g-3 align-items-center mb-3">
+            <div class="col-12 col-sm-4"><label class="form-label mb-0" for="{{ form.account_username.id_for_label }}">Логин</label></div>
+            <div class="col-12 col-sm-8">{{ form.account_username }}</div>
+            </div>
+            <div class="row g-3 align-items-center mb-3">
+            <div class="col-12 col-sm-4"><label class="form-label mb-0" for="{{ form.account_email.id_for_label }}">Email</label></div>
+            <div class="col-12 col-sm-8">{{ form.account_email }}</div>
+            </div>
+            <div class="row g-3 align-items-center mb-3">
+            <div class="col-12 col-sm-4"><label class="form-label mb-0" for="{{ form.account_password.id_for_label }}">Пароль</label></div>
+            <div class="col-12 col-sm-8">{{ form.account_password }}</div>
+            </div>
+        </div>
+  
+
+        <!-- Родитель -->
+        <div class="row g-3 align-items-center mb-3">
+          <div class="col-12 col-sm-4">
+            <label class="form-label mb-0" for="{{ form.parent.id_for_label }}">Родитель</label>
+          </div>
+          <div class="col-12 col-sm-8">
+            {{ form.parent }}
+            {% if form.parent.errors %}<div class="invalid-feedback d-block">{{ form.parent.errors|striptags }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Имя -->
+        <div class="row g-3 align-items-center mb-3">
+          <div class="col-12 col-sm-4">
+            <label class="form-label mb-0" for="{{ form.first_name.id_for_label }}">Имя</label>
+          </div>
+          <div class="col-12 col-sm-8">
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors|striptags }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Фамилия -->
+        <div class="row g-3 align-items-center mb-3">
+          <div class="col-12 col-sm-4">
+            <label class="form-label mb-0" for="{{ form.last_name.id_for_label }}">Фамилия</label>
+          </div>
+          <div class="col-12 col-sm-8">
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<div class="invalid-feedback d-block">{{ form.last_name.errors|striptags }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Дата рождения (input-group с иконкой) -->
+        <div class="row g-3 align-items-center mb-3">
+          <div class="col-12 col-sm-4">
+            <label class="form-label mb-0" for="{{ form.birth_date.id_for_label }}">Дата рождения</label>
+          </div>
+          <div class="col-12 col-sm-8">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+              {{ form.birth_date }}
+            </div>
+            {% if form.birth_date.errors %}<div class="invalid-feedback d-block">{{ form.birth_date.errors|striptags }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Пол (радио в виде кнопок с эмодзи) -->
+        <div class="row g-3 align-items-center mb-3">
+          <div class="col-12 col-sm-4">
+            <label class="form-label mb-0">Пол</label>
+          </div>
+          <div class="col-12 col-sm-8">
+            <div class="btn-group" role="group" aria-label="Выбор пола">
+              {% for sub in form.gender %}
+                {{ sub.tag }}  {# input type=radio (получит class="btn-check" из widgets) #}
+                <label class="btn btn-outline-secondary" for="{{ sub.id_for_label }}">
+                  {% if sub.choice_label == 'Мальчик' %}👦{% elif sub.choice_label == 'Девочка' %}👧{% else %}🧒{% endif %}
+                  {{ sub.choice_label }}
+                </label>
+              {% endfor %}
+            </div>
+            {% if form.gender.errors %}<div class="invalid-feedback d-block">{{ form.gender.errors|striptags }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Примечания -->
+        <div class="row g-3 align-items-start mb-3">
+          <div class="col-12 col-sm-4">
+            <label class="form-label mb-0" for="{{ form.notes.id_for_label }}">Примечания</label>
+          </div>
+          <div class="col-12 col-sm-8">
+            {{ form.notes }}
+            {% if form.notes.errors %}<div class="invalid-feedback d-block">{{ form.notes.errors|striptags }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="text-end">
+          <button class="btn btn-success px-4" type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
