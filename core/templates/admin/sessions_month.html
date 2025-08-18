@@ -12,11 +12,11 @@
 
     <div class="d-flex gap-2">
       <a class="btn btn-sm btn-outline-secondary"
-         href="{% url 'sessions_month' %}{% if prev_month %}?month={{ prev_month|date:'Y-m' }}{% endif %}">
+         href="{% url 'sessions_month' %}?year={{ prev_year }}&month={{ prev_month }}">
         ← Предыдущий
       </a>
       <a class="btn btn-sm btn-outline-secondary"
-         href="{% url 'sessions_month' %}{% if next_month %}?month={{ next_month|date:'Y-m' }}{% endif %}">
+         href="{% url 'sessions_month' %}?year={{ next_year }}&month={{ next_month }}">
         Следующий →
       </a>
     </div>

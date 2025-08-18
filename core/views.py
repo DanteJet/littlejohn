@@ -113,7 +113,20 @@ def sessions_month(request):
         next_year, next_month = year + 1, 1
     else:
         next_year, next_month = year, month + 1
-    
+
+    # Разбиение на недели для календаря
+    weeks = []
+    week = []
+    for day in days:
+        week.append(day)
+        if len(week) == 7:
+            weeks.append(week)
+            week = []
+
+    # Добавить последнюю неполную неделю
+    if week:
+        weeks.append(week)
+
     return render(request, 'admin/sessions_month.html', {
         'days': days,
         'month': month,
@@ -122,6 +135,7 @@ def sessions_month(request):
         'prev_year': prev_year, 'prev_month': prev_month,
         'next_year': next_year, 'next_month': next_month,
         'slots_by_day': slots_by_day,
+        'weeks': weeks,  # Передаем недели для календаря
     })
 
 @login_required
