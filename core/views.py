@@ -254,29 +254,22 @@ def mark_payment(request):
 # --- родитель ---
 
 @login_required
-@user_passes_test(is_parent)
 def my_schedule(request):
     # Админа отправим в дашборд
     if is_admin(request.user):
         return redirect('admin_dashboard')
-
-    sessions = TrainingSession.objects.none()
 
     if is_parent(request.user):
         children_ids = list(request.user.children.values_list('id', flat=True))
         sessions = (TrainingSession.objects
                     .filter(participants__in=children_ids)
                     .distinct().order_by('start'))
-    else:
-        # студент-взрослый
-        student = getattr(request.user, 'student_profile', None)
-        if student:
-            sessions = (TrainingSession.objects
-                        .filter(participants=student)
-                        .distinct().order_by('start'))
-        else:
-            return HttpResponseForbidden('Нет доступа.')
-
+        return render(request, 'parent/my_schedule.html', {'sessions': sessions})
+    # студент-взрослый
+    student = getattr(request.user, 'student_profile', None)
+    if not student:
+        return HttpResponseForbidden('Нет доступа.')
+    sessions = TrainingSession.objects.filter(participants=student).distinct().order_by('start')
     return render(request, 'parent/my_schedule.html', {'sessions': sessions})
 
 @login_required
