@@ -382,13 +382,19 @@ def my_schedule(request):
         sessions = (TrainingSession.objects
                     .filter(participants__in=children_ids)
                     .distinct().order_by('start'))
-        return render(request, 'parent/my_schedule.html', {'sessions': sessions})
+        return render(request, 'parent/my_schedule.html', {
+            'sessions': sessions,
+            'show_children': True,
+        })
     # студент-взрослый
     student = getattr(request.user, 'student_profile', None)
     if not student:
         return HttpResponseForbidden('Нет доступа.')
     sessions = TrainingSession.objects.filter(participants=student).distinct().order_by('start')
-    return render(request, 'parent/my_schedule.html', {'sessions': sessions})
+    return render(request, 'parent/my_schedule.html', {
+        'sessions': sessions,
+        'show_children': False,
+    })
 
 @login_required
 @user_passes_test(is_parent)

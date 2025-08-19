@@ -2,12 +2,19 @@
 {% block content %}
 <h3>Мое расписание</h3>
 <table class="table table-striped">
-  <thead><tr><th>Дата</th><th>Время</th><th>Дети</th><th>Заметки</th></tr></thead>
+  <thead>
+    <tr>
+      <th>Дата</th>
+      <th>Время</th>
+      {% if show_children %}<th>Дети</th>{% endif %}
+    </tr>
+  </thead>
   <tbody>
     {% for s in sessions %}
       <tr>
         <td>{{ s.start|date:'d.m.Y' }}</td>
         <td>{{ s.start|date:'H:i' }}–{{ s.end|date:'H:i' }}</td>
+        {% if show_children %}
         <td>
           {% for c in s.participants.all %}
             {% if c.parent_id == user.id %}
@@ -15,10 +22,12 @@
             {% endif %}
           {% endfor %}
         </td>
-        <td>{{ s.notes }}</td>
+        {% endif %}
       </tr>
     {% empty %}
-      <tr><td colspan="4" class="text-muted">Пока занятий нет</td></tr>
+      <tr>
+        <td colspan="{% if show_children %}3{% else %}2{% endif %}" class="text-muted">Пока занятий нет</td>
+      </tr>
     {% endfor %}
   </tbody>
 </table>
