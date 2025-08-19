@@ -3,23 +3,68 @@
 {% load get_item %}
 
 {% block content %}
-<div class="text-center py-5">
-  <h1>Спортивный клуб стрельбы из лука "Малыш Джон"</h1>
-  <p class="lead">Мы спортивный клуб стрельбы из традиционного лука. Обучаем стрельбе и погружаем в историю. Помимо тренировок расскажем вам про историю лука с древних времен, различие и особенности. Постоянные тренировки укрепляют здоровье, осанку, тренируют координацию.</p>
+<div class="container py-5">
+  <h1 class="landing-title text-center mb-4">Спортивный клуб стрельбы из лука "Малыш Джон"</h1>
+  <div class="row align-items-center">
+    <div class="col-md-6 mb-4 mb-md-0">
+      <img src="https://via.placeholder.com/600x400?text=Клуб" class="img-fluid rounded shadow" alt="О клубе">
+    </div>
+    <div class="col-md-6">
+      <p class="lead">Мы спортивный клуб стрельбы из традиционного лука. Обучаем стрельбе и погружаем в историю. Помимо тренировок расскажем вам про историю лука с древних времен, различие и особенности. Постоянные тренировки укрепляют здоровье, осанку, тренируют координацию.</p>
+    </div>
+  </div>
 </div>
 
 <div class="container my-5">
   <h2 class="text-center mb-4">Наши услуги</h2>
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between"><span>Разовое занятие</span><span>800р</span></li>
-        <li class="list-group-item d-flex justify-content-between"><span>Индивидуальное занятие</span><span>1400р</span></li>
-        <li class="list-group-item d-flex justify-content-between"><span>Абонемент 8 занятий/месяц</span><span>5000р</span></li>
-        <li class="list-group-item">Абонементы 12/16 занятий в месяц: индивидуальные условия</li>
-        <li class="list-group-item">Приведи друга: 30% при оформлении абонементов на месяц</li>
-        <li class="list-group-item d-flex justify-content-between"><span>Семейное посещение (до 4 чел)</span><span>2500р</span></li>
-      </ul>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Разовое занятие</h5>
+          <p class="card-text fw-semibold">800р</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Индивидуальное занятие</h5>
+          <p class="card-text fw-semibold">1400р</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Абонемент 8 занятий/месяц</h5>
+          <p class="card-text fw-semibold">5000р</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Абонементы 12/16 занятий в месяц</h5>
+          <p class="card-text">индивидуальные условия</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Приведи друга</h5>
+          <p class="card-text">30% при оформлении абонементов на месяц</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Семейное посещение (до 4 чел)</h5>
+          <p class="card-text fw-semibold">2500р</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
