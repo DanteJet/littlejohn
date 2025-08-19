@@ -28,20 +28,57 @@
   </div>
 
   <div class="collapse mb-3" id="sessionForm">
-    <div class="card card-body">
-      <form method="post" action="{% url 'session_create' %}">
-        {% csrf_token %}
-        <div class="row g-2">
-          <div class="col-md-3">{{ form.start.label_tag }}{{ form.start }}</div>
-          <div class="col-md-2">{{ form.duration_minutes.label_tag }}{{ form.duration_minutes }}</div>
-          <div class="col-md-4">{{ form.participants.label_tag }}{{ form.participants }}</div>
-          <div class="col-md-3">{{ form.notes.label_tag }}{{ form.notes }}</div>
-          <div class="col-md-3 form-check mt-2">{{ form.fill_month }} {{ form.fill_month.label_tag }}</div>
-        </div>
-        <div class="mt-3">
-          <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
-        </div>
-      </form>
+    <div class="card shadow-sm border-0">
+      <div class="card-header" style="background:#d8f3dc;">
+        <h5 class="m-0">Новое занятие</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'session_create' %}" class="grid-form">
+          {% csrf_token %}
+
+          <div class="row g-3 align-items-center mb-3">
+            <div class="col-12 col-sm-4">
+              <label class="form-label mb-0" for="{{ form.start.id_for_label }}">{{ form.start.label }}</label>
+            </div>
+            <div class="col-12 col-sm-8">{{ form.start }}</div>
+          </div>
+
+          <div class="row g-3 align-items-center mb-3">
+            <div class="col-12 col-sm-4">
+              <label class="form-label mb-0" for="{{ form.duration_minutes.id_for_label }}">{{ form.duration_minutes.label }}</label>
+            </div>
+            <div class="col-12 col-sm-8">
+              <div class="stepper">
+                <button type="button" class="stepper-btn" data-step="-15">−</button>
+                {{ form.duration_minutes }}
+                <button type="button" class="stepper-btn" data-step="15">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 align-items-start mb-3">
+            <div class="col-12 col-sm-4">
+              <label class="form-label mb-0" for="{{ form.participants.id_for_label }}">{{ form.participants.label }}</label>
+            </div>
+            <div class="col-12 col-sm-8">{{ form.participants }}</div>
+          </div>
+
+          <div class="row g-3 align-items-start mb-3">
+            <div class="col-12 col-sm-4">
+              <label class="form-label mb-0" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+            </div>
+            <div class="col-12 col-sm-8">{{ form.notes }}</div>
+          </div>
+
+          <div class="form-check mb-3">
+            {{ form.fill_month }} {{ form.fill_month.label_tag }}
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-success px-4">Сохранить</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
