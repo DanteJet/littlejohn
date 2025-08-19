@@ -5,3 +5,15 @@
 .landing-title {
   font-family: 'Playfair Display', serif;
 }
+
+/* Parchment styling for price cards */
+.price-card {
+  background: url('../img/parchment.png') center/cover no-repeat;
+  border: 1px solid #d6c5a0;
+  color: #4a3622;
+}
+
+.price-card .card-title,
+.price-card .card-text {
+  font-family: 'Playfair Display', serif;
+}
