@@ -15,7 +15,8 @@ from django.urls import reverse, reverse_lazy
 
 from .forms import (
     AddVisitForm, StudentForm, ParentCreateForm,
-    SubscriptionForm, SubscriptionTypeForm, TrainingSessionForm, IssueSubscriptionForm
+    SubscriptionForm, SubscriptionTypeForm, TrainingSessionForm, IssueSubscriptionForm,
+    BootstrapPasswordChangeForm,
 )
 
 from .models import Child, Subscription, SubscriptionType, TrainingSession
@@ -38,6 +39,7 @@ class CustomLoginView(auth_views.LoginView):
 
 
 class CustomPasswordChangeView(auth_views.PasswordChangeView):
+    form_class = BootstrapPasswordChangeForm
     template_name = 'password_change.html'
     success_url = reverse_lazy('password_change_done')
 
@@ -45,7 +47,6 @@ class CustomPasswordChangeView(auth_views.PasswordChangeView):
         self.request.session.pop('force_password_change', None)
         return super().form_valid(form)
 
-# --- роли ---
 # --- роли ---
 
 def is_admin(user):
@@ -389,13 +390,19 @@ def my_schedule(request):
         sessions = (TrainingSession.objects
                     .filter(participants__in=children_ids)
                     .distinct().order_by('start'))
-        return render(request, 'parent/my_schedule.html', {'sessions': sessions})
+        return render(request, 'parent/my_schedule.html', {
+            'sessions': sessions,
+            'show_children': True,
+        })
     # студент-взрослый
     student = getattr(request.user, 'student_profile', None)
     if not student:
         return HttpResponseForbidden('Нет доступа.')
     sessions = TrainingSession.objects.filter(participants=student).distinct().order_by('start')
-    return render(request, 'parent/my_schedule.html', {'sessions': sessions})
+    return render(request, 'parent/my_schedule.html', {
+        'sessions': sessions,
+        'show_children': False,
+    })
 
 @login_required
 @user_passes_test(is_parent)

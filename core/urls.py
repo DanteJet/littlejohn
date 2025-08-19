@@ -3,7 +3,6 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-
     # Админ
     path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('sessions/week/', views.sessions_week, name='sessions_week'),
@@ -35,5 +34,5 @@ urlpatterns = [
 
     path('children/<int:pk>/delete/', views.child_delete, name='child_delete'),
     path('parents/<int:user_id>/delete/', views.parent_delete, name='parent_delete'),
-    
+
 ]
