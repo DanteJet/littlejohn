@@ -213,36 +213,62 @@ def parent_create(request):
     if request.method == 'POST':
         form = ParentCreateForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-            if User.objects.filter(username=username).exists():
-                messages.error(request, 'Логин уже существует')
-            else:
-                user = User.objects.create_user(username=username, email=email, password=password)
-                group, _ = Group.objects.get_or_create(name='Parent')
-                user.groups.add(group)
-                user.is_staff = False
-                user.save()
-                messages.success(request, 'Родитель создан')
-                return redirect('parent_create')
+            user = form.save()
+            messages.success(request, 'Родитель успешно создан!')
+            return redirect('parent_create')
+        else:
+            messages.error(request, f'Ошибка при создании родителя: {form.errors}')
     else:
         form = ParentCreateForm()
 
-    # Список родителей (только из группы Parent) + дети
+    # Получаем список всех родителей
     try:
         parent_group = Group.objects.get(name='Parent')
-        parents = (User.objects.filter(groups=parent_group)
-                   .prefetch_related(Prefetch('children', queryset=Child.objects.order_by('first_name')))
-                   .annotate(children_count=Count('children'))
-                   .order_by('username'))
+        parents = User.objects.filter(groups=parent_group).order_by('username')
     except Group.DoesNotExist:
         parents = User.objects.none()
 
     return render(request, 'admin/parent_create.html', {
         'form': form,
-        'parents': parents,
+        'parents': parents,  # Передаем актуальный список родителей в контекст
     })
+    # if request.method == 'POST':
+    #     form = ParentCreateForm(request.POST)
+    #     if form.is_valid():
+    #         first_name = form.cleaned_data['first_name']
+    #         last_name = form.cleaned_data['last_name']
+    #         username = form.cleaned_data['username']
+    #         email = form.cleaned_data['email']
+    #         password = form.cleaned_data['password']
+    #         if User.objects.filter(username=username).exists():
+    #             messages.error(request, 'Логин уже существует')
+    #         else:
+    #             user = User.objects.create_user(username=username, email=email, password=password)
+    #             user.first_name = first_name
+    #             user.last_name = last_name
+    #             group, _ = Group.objects.get_or_create(name='Parent')
+    #             user.groups.add(group)
+    #             user.is_staff = False
+    #             user.save()
+    #             messages.success(request, 'Родитель создан')
+    #             return redirect('parent_create')
+    # else:
+    #     form = ParentCreateForm()
+
+    # Список родителей (только из группы Parent) + дети
+    # try:
+    #     parent_group = Group.objects.get(name='Parent')
+    #     parents = (User.objects.filter(groups=parent_group)
+    #                .prefetch_related(Prefetch('children', queryset=Child.objects.order_by('first_name')))
+    #                .annotate(children_count=Count('children'))
+    #                .order_by('username'))
+    # except Group.DoesNotExist:
+    #     parents = User.objects.none()
+
+    # return render(request, 'admin/parent_create.html', {
+    #     'form': form,
+    #     'parents': parents,
+    # })
 
 @login_required
 @user_passes_test(is_admin)

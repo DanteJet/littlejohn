@@ -12,27 +12,32 @@
           <h5 class="m-0">Создать родителя</h5>
         </div>
         <div class="card-body">
-          <form method="post" novalidate>
-            {% csrf_token %}
-            <div class="mb-3">
-              <label class="form-label">Логин</label>
-              <input name="username" class="form-control" required placeholder="login">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input name="email" type="email" class="form-control" placeholder="parent@example.com">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Временный пароль</label>
-              <div class="input-group">
-                <input name="password" type="text" class="form-control" placeholder="например: Temp123!">
-                <button type="button" class="btn btn-outline-secondary" id="genPassBtn">Сгенерировать</button>
-              </div>
-            </div>
-            <div class="text-end">
-              <button class="btn btn-success px-4">Добавить</button>
-            </div>
-          </form>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label class="form-label">Имя</label>
+                  <input name="first_name" class="form-control" required placeholder="Имя" value="{{ form.first_name.value }}">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Фамилия</label>
+                  <input name="last_name" class="form-control" required placeholder="Фамилия" value="{{ form.last_name.value }}">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Логин</label>
+                  <input name="username" class="form-control" required placeholder="Логин" value="{{ form.username.value }}">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input name="email" type="email" class="form-control" required placeholder="parent@example.com" value="{{ form.email.value }}">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Временный пароль</label>
+                  <input name="password" type="password" class="form-control" required placeholder="например: Temp123!">
+                </div>
+                <div class="text-end">
+                  <button class="btn btn-success px-4">Добавить</button>
+                </div>
+              </form>              
         </div>
       </div>
     </div>

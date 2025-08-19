@@ -2,10 +2,21 @@ from django import forms
 from django.contrib.auth.models import User, Group
 from .models import Child, SubscriptionType, Subscription, TrainingSession
 
-class ParentCreateForm(forms.Form):
-    username = forms.CharField(label='Логин')
-    email = forms.EmailField(label='Email')
+class ParentCreateForm(forms.ModelForm):
     password = forms.CharField(label='Временный пароль', widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'password']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.set_password(self.cleaned_data['password'])
+            user.save()
+        group, _ = Group.objects.get_or_create(name='Parent')
+        user.groups.add(group)  # Убедитесь, что родитель добавлен в группу 'Parent'
+        return user 
 
 class StudentForm(forms.ModelForm):
     # добавляем выбор «Ребёнок» или «Взрослый»
@@ -25,7 +36,7 @@ class StudentForm(forms.ModelForm):
         required=False, label='Пароль',
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Пароль', 'autocomplete': 'new-password'})
     )
-    
+
     class Meta:
         model = Child
         fields = ['student_type', 'parent', 'first_name', 'last_name', 'birth_date', 'gender', 'notes']
