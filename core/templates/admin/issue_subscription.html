@@ -24,7 +24,28 @@
           <a href="{% url 'children_list' %}" class="btn btn-outline-secondary ms-2">Отмена</a>
         </div>
       </form>
-    </div>
-  </div>
 </div>
+</div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const prices = {
+      {% for t in types %}
+      '{{ t.id }}': '{{ t.price }}'{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    };
+    const select = document.getElementById('id_sub_type');
+    const priceInput = document.getElementById('id_price');
+    function updatePrice() {
+      const val = select.value;
+      if (prices[val] !== undefined) {
+        priceInput.value = prices[val];
+      }
+    }
+    select.addEventListener('change', updatePrice);
+    if (!priceInput.value) {
+      updatePrice();
+    }
+  });
+</script>
 {% endblock %}
