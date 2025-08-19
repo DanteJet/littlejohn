@@ -439,6 +439,36 @@ def issue_subscription(request, pk):
         form = IssueSubscriptionForm()
     return render(request, 'admin/issue_subscription.html', {'form': form, 'child': child})
 
+
+@login_required
+@user_passes_test(is_admin)
+def subscription_edit(request, pk):
+    """Изменение типа абонемента для существующего ученика."""
+    child = get_object_or_404(Child, pk=pk, subscription__isnull=False)
+    sub = child.subscription
+
+    if request.method == 'POST':
+        form = IssueSubscriptionForm(request.POST)
+        if form.is_valid():
+            sub.sub_type = form.cleaned_data['sub_type']
+            sub.price = form.cleaned_data['price'] or sub.sub_type.price
+            if form.cleaned_data['mark_paid']:
+                sub.paid = True
+                sub.lessons_remaining = sub.sub_type.lessons_count
+            else:
+                if sub.lessons_remaining > sub.sub_type.lessons_count:
+                    sub.lessons_remaining = sub.sub_type.lessons_count
+            sub.save()
+            messages.success(request, 'Абонемент обновлён')
+            return redirect('children_list')
+    else:
+        form = IssueSubscriptionForm(initial={
+            'sub_type': sub.sub_type,
+            'price': sub.price,
+        })
+
+    return render(request, 'admin/subscription_edit.html', {'form': form, 'child': child, 'sub': sub})
+
 @login_required
 @user_passes_test(is_admin)
 @require_POST
