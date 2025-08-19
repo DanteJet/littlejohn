@@ -10,6 +10,8 @@ urlpatterns = [
     path('sessions/month/', views.sessions_month, name='sessions_month'),
     path('sessions/create/', views.session_create, name='session_create'),
     path('sessions/<int:pk>/add-child/<int:child_id>/', views.session_add_child, name='session_add_child'),
+    path('sessions/<int:pk>/edit/', views.session_edit, name='session_edit'),
+    path('sessions/<int:pk>/delete/', views.session_delete, name='session_delete'),
 
     path('children/', views.children_list, name='children_list'),
     path('children/create/', views.child_create, name='child_create'),

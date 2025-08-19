@@ -107,6 +107,14 @@
                   {% endif %}
                 </div>
 
+                <div class="mt-2 d-flex gap-1">
+                  <a href="{% url 'session_edit' slot.session_ids.0 %}" class="btn btn-sm btn-outline-primary">Ред.</a>
+                  <form method="post" action="{% url 'session_delete' slot.session_ids.0 %}" onsubmit="return confirm('Удалить занятие?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                  </form>
+                </div>
+
                 {# При необходимости действия делаем через slot.session_ids.0 #}
                 {# <form method="post" ...> <input type="hidden" name="session_id" value="{{ slot.session_ids.0 }}"> ... </form> #}
               </div>

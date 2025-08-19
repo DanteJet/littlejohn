@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from django.views.decorators.http import require_POST
+from django.urls import reverse
 
 from .forms import (
     AddVisitForm, StudentForm, ParentCreateForm,
@@ -173,6 +174,42 @@ def session_add_child(request, pk, child_id):
     session.participants.add(child)
     messages.success(request, f'Добавлен {child} в занятие.')
     return redirect('sessions_week')
+
+
+@login_required
+@user_passes_test(is_admin)
+def session_edit(request, pk):
+    session = get_object_or_404(TrainingSession, pk=pk)
+    week_start = session.start.date() - timedelta(days=session.start.weekday())
+
+    if request.method == 'POST':
+        form = TrainingSessionForm(request.POST, instance=session)
+        form.fields.pop('fill_month', None)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Занятие обновлено')
+            return redirect(f"{reverse('sessions_week')}?start={week_start:%Y-%m-%d}")
+    else:
+        form = TrainingSessionForm(instance=session)
+        form.fields.pop('fill_month', None)
+
+    return render(request, 'admin/session_edit.html', {
+        'form': form,
+        'session': session,
+        'week_start': week_start,
+    })
+
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def session_delete(request, pk):
+    session = get_object_or_404(TrainingSession, pk=pk)
+    start_date = session.start.date()
+    session.delete()
+    week_start = start_date - timedelta(days=start_date.weekday())
+    messages.success(request, 'Занятие удалено')
+    return redirect(f"{reverse('sessions_week')}?start={week_start:%Y-%m-%d}")
 
 @login_required
 @user_passes_test(is_admin)
