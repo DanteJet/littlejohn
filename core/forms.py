@@ -1,6 +1,14 @@
 from django import forms
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User, Group
 from .models import Child, SubscriptionType, Subscription, TrainingSession
+
+
+class BootstrapPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
 
 class ParentCreateForm(forms.ModelForm):
     password = forms.CharField(label='Временный пароль', widget=forms.PasswordInput)

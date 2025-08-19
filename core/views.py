@@ -4,17 +4,19 @@ from calendar import monthrange
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
+from django.contrib.auth.views import PasswordChangeView
 from django.db.models import Prefetch, Count
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from django.views.decorators.http import require_POST
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
 from .forms import (
     AddVisitForm, StudentForm, ParentCreateForm,
-    SubscriptionForm, SubscriptionTypeForm, TrainingSessionForm, IssueSubscriptionForm
+    SubscriptionForm, SubscriptionTypeForm, TrainingSessionForm, IssueSubscriptionForm,
+    BootstrapPasswordChangeForm,
 )
 
 from .models import Child, Subscription, SubscriptionType, TrainingSession
@@ -35,6 +37,12 @@ def home(request):
     if is_admin(request.user):
         return redirect('admin_dashboard')
     return redirect('my_schedule')
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    form_class = BootstrapPasswordChangeForm
+    template_name = 'password_change.html'
+    success_url = reverse_lazy('home')
 
 # --- админ ---
 
