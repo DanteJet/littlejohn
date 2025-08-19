@@ -104,14 +104,16 @@ def home(request):
     else:
         next_year, next_month = year, month + 1
 
+    # Разбиение на недели с учетом дня недели первого числа
     weeks = []
-    week = []
+    week = [None] * first_day.weekday()
     for day in days:
         week.append(day)
         if len(week) == 7:
             weeks.append(week)
             week = []
     if week:
+        week += [None] * (7 - len(week))
         weeks.append(week)
 
     context = {
@@ -206,9 +208,9 @@ def sessions_month(request):
     else:
         next_year, next_month = year, month + 1
 
-    # Разбиение на недели для календаря
+    # Разбиение на недели для календаря с учетом дня недели первого числа
     weeks = []
-    week = []
+    week = [None] * first_day.weekday()
     for day in days:
         week.append(day)
         if len(week) == 7:
@@ -217,6 +219,7 @@ def sessions_month(request):
 
     # Добавить последнюю неполную неделю
     if week:
+        week += [None] * (7 - len(week))
         weeks.append(week)
 
     return render(request, 'admin/sessions_month.html', {
