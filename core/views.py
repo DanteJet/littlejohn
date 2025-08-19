@@ -4,13 +4,14 @@ from calendar import monthrange
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
+from django.contrib.auth import views as auth_views
 from django.db.models import Prefetch, Count
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from django.views.decorators.http import require_POST
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
 from .forms import (
     AddVisitForm, StudentForm, ParentCreateForm,
@@ -20,6 +21,32 @@ from .forms import (
 from .models import Child, Subscription, SubscriptionType, TrainingSession
 from collections import defaultdict, OrderedDict
 
+# --- аутентификация ---
+
+class CustomLoginView(auth_views.LoginView):
+    """Логин с обязательной сменой пароля при первом входе."""
+    template_name = 'login.html'
+
+    def form_valid(self, form):
+        user = form.get_user()
+        first_login = user.last_login is None
+        response = super().form_valid(form)
+        if first_login and user.groups.filter(name__in=['Parent', 'Student']).exists():
+            self.request.session['force_password_change'] = True
+            return redirect('password_change')
+        return response
+
+
+class CustomPasswordChangeView(auth_views.PasswordChangeView):
+    template_name = 'password_change.html'
+    success_url = reverse_lazy('password_change_done')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.request.session.pop('force_password_change', None)
+        return response
+
+# --- роли ---
 # --- роли ---
 
 def is_admin(user):
