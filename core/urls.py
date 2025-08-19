@@ -3,8 +3,6 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('password/change/', views.CustomPasswordChangeView.as_view(), name='password_change'),
-
     # Админ
     path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('sessions/week/', views.sessions_week, name='sessions_week'),
