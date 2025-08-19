@@ -13,6 +13,9 @@
     </h4>
 
     <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-primary" data-bs-toggle="collapse" href="#sessionForm" role="button" aria-expanded="false" aria-controls="sessionForm">
+        Добавить занятие
+      </a>
       <a class="btn btn-sm btn-outline-secondary"
          href="{% url 'sessions_week' %}{% if prev_start %}?start={{ prev_start|date:'Y-m-d' }}{% endif %}">
         ← Предыдущая
@@ -21,6 +24,24 @@
          href="{% url 'sessions_week' %}{% if next_start %}?start={{ next_start|date:'Y-m-d' }}{% endif %}">
         Следующая →
       </a>
+    </div>
+  </div>
+
+  <div class="collapse mb-3" id="sessionForm">
+    <div class="card card-body">
+      <form method="post" action="{% url 'session_create' %}">
+        {% csrf_token %}
+        <div class="row g-2">
+          <div class="col-md-3">{{ form.start.label_tag }}{{ form.start }}</div>
+          <div class="col-md-2">{{ form.duration_minutes.label_tag }}{{ form.duration_minutes }}</div>
+          <div class="col-md-4">{{ form.participants.label_tag }}{{ form.participants }}</div>
+          <div class="col-md-3">{{ form.notes.label_tag }}{{ form.notes }}</div>
+          <div class="col-md-3 form-check mt-2">{{ form.fill_month }} {{ form.fill_month.label_tag }}</div>
+        </div>
+        <div class="mt-3">
+          <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+        </div>
+      </form>
     </div>
   </div>
 
