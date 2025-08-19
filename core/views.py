@@ -48,7 +48,6 @@ class CustomPasswordChangeView(auth_views.PasswordChangeView):
         return super().form_valid(form)
 
 # --- роли ---
-# --- роли ---
 
 def is_admin(user):
     return user.is_authenticated and (user.is_staff or user.groups.filter(name='Admin').exists())
