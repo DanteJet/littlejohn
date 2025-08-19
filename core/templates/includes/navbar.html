@@ -25,7 +25,9 @@
           <form method="post" action="{% url 'logout' %}" class="ms-3 d-inline">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-dark">Выход</button>
-          </form>          
+          </form>
+          {% else %}
+          <a href="{% url 'login' %}" class="btn btn-outline-dark ms-3">Вход</a>
           {% endif %}
         </div>
       </div>

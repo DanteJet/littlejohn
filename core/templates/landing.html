@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load get_item %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="landing-title text-center mb-4">Спортивный клуб стрельбы из лука "Малыш Джон"</h1>
+  <div class="row align-items-center">
+    <div class="col-md-6 mb-4 mb-md-0">
+      <img src="https://via.placeholder.com/600x400?text=Клуб" class="img-fluid rounded shadow" alt="О клубе">
+    </div>
+    <div class="col-md-6">
+      <p class="lead">Мы спортивный клуб стрельбы из традиционного лука. Обучаем стрельбе и погружаем в историю. Помимо тренировок расскажем вам про историю лука с древних времен, различие и особенности. Постоянные тренировки укрепляют здоровье, осанку, тренируют координацию.</p>
+    </div>
+  </div>
+</div>
+
+<div class="container my-5">
+  <h2 class="text-center mb-4">Наши услуги</h2>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Разовое занятие</h5>
+          <p class="card-text fw-semibold">800р</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Индивидуальное занятие</h5>
+          <p class="card-text fw-semibold">1400р</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Абонемент 8 занятий/месяц</h5>
+          <p class="card-text fw-semibold">5000р</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Абонементы 12/16 занятий в месяц</h5>
+          <p class="card-text">индивидуальные условия</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Приведи друга</h5>
+          <p class="card-text">30% при оформлении абонементов на месяц</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Семейное посещение (до 4 чел)</h5>
+          <p class="card-text fw-semibold">2500р</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="clubCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="https://via.placeholder.com/800x400?text=Фото+1" class="d-block w-100" alt="...">
+    </div>
+    <div class="carousel-item">
+      <img src="https://via.placeholder.com/800x400?text=Фото+2" class="d-block w-100" alt="...">
+    </div>
+    <div class="carousel-item">
+      <img src="https://via.placeholder.com/800x400?text=Фото+3" class="d-block w-100" alt="...">
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#clubCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#clubCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+<div class="container my-5">
+  <h2 class="text-center mb-4">Расписание занятий</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="m-0">{% if month %}{{ month|date:"F Y" }}{% endif %}</h5>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary" href="?year={{ prev_year }}&month={{ prev_month }}">← Предыдущий</a>
+      <a class="btn btn-sm btn-outline-secondary" href="?year={{ next_year }}&month={{ next_month }}">Следующий →</a>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered align-top">
+      <thead class="table-light">
+        <tr class="text-center">
+          <th>Пн</th>
+          <th>Вт</th>
+          <th>Ср</th>
+          <th>Чт</th>
+          <th>Пт</th>
+          <th>Сб</th>
+          <th>Вс</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for week in weeks %}
+          <tr>
+            {% for day in week %}
+              <td style="width:14.28%; vertical-align: top;" class="{% if day and month and day|date:'m' != month|date:'m' %}text-muted bg-light{% endif %}">
+                {% if day %}
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-semibold">{{ day|date:"d.m" }}</span>
+                  </div>
+                  {% with slots=slots_by_day|get_item:day %}
+                    {% if slots %}
+                      {% for slot in slots %}
+                        <div class="border rounded p-2 mb-2 calendar-slot">
+                          <div class="small fw-semibold">{{ slot.start|date:"H:i" }}–{{ slot.end|date:"H:i" }}</div>
+                          <div class="small mt-1">Занимающихся: {{ slot.participants|length }}</div>
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                  {% endwith %}
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<footer class="bg-light py-3 mt-5">
+  <div class="container text-center small">
+    ООО "Малыш Джон", ОГРН 0000000000000, ИНН 0000000000, адрес: г. Москва, ул. Примерная, д. 1
+  </div>
+</footer>
+{% endblock %}
