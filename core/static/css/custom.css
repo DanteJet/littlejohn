@@ -8,9 +8,15 @@
 
 /* Parchment styling for price cards */
 .price-card {
-  background: url('../img/parchment.png') center/cover no-repeat;
-  border: 1px solid #d6c5a0;
+  background: url('../img/parchment.png') center/100% 100% no-repeat;
+  border: none;
+  box-shadow: none;
   color: #4a3622;
+}
+
+/* Keep text away from curved scroll edges */
+.price-card .card-body {
+  padding: 1.5rem 2rem;
 }
 
 .price-card .card-title,
