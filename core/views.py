@@ -354,6 +354,20 @@ def subscription_types(request):
 
 @login_required
 @user_passes_test(is_admin)
+def subscription_type_edit(request, pk):
+    stype = get_object_or_404(SubscriptionType, pk=pk)
+    if request.method == 'POST':
+        form = SubscriptionTypeForm(request.POST, instance=stype)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Тип абонемента обновлён')
+            return redirect('subscription_types')
+    else:
+        form = SubscriptionTypeForm(instance=stype)
+    return render(request, 'admin/subscription_type_edit.html', {'form': form, 'stype': stype})
+
+@login_required
+@user_passes_test(is_admin)
 def parent_create(request):
     if request.method == 'POST':
         form = ParentCreateForm(request.POST)

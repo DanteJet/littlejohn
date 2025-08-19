@@ -22,6 +22,7 @@ urlpatterns = [
 
     path('subscriptions/', views.subscriptions_list, name='subscriptions_list'),
     path('subscription-types/', views.subscription_types, name='subscription_types'),
+    path('subscription-types/<int:pk>/edit/', views.subscription_type_edit, name='subscription_type_edit'),
 
     path('parents/create/', views.parent_create, name='parent_create'),
 
