@@ -42,9 +42,8 @@ class CustomPasswordChangeView(auth_views.PasswordChangeView):
     success_url = reverse_lazy('password_change_done')
 
     def form_valid(self, form):
-        response = super().form_valid(form)
         self.request.session.pop('force_password_change', None)
-        return response
+        return super().form_valid(form)
 
 # --- роли ---
 # --- роли ---
