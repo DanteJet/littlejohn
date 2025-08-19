@@ -52,6 +52,7 @@ class StudentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['parent'].queryset = User.objects.filter(groups__name='Parent').order_by('username')
+        self.fields['student_type'].initial = 'child'
         if self.instance and self.instance.pk:
             self.fields['student_type'].initial = 'adult' if self.instance.is_adult else 'child'
             if self.instance.is_adult and self.instance.account_user:
@@ -161,11 +162,20 @@ class SubscriptionForm(forms.ModelForm):
         fields = ['child', 'sub_type', 'lessons_remaining', 'price', 'paid']
 
 class TrainingSessionForm(forms.ModelForm):
+    fill_month = forms.BooleanField(
+        required=False,
+        label='Заполнить на месяц',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
     class Meta:
         model = TrainingSession
         fields = ['start', 'duration_minutes', 'participants', 'notes']
         widgets = {
-            'start': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'start': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'duration_minutes': forms.NumberInput(attrs={'class': 'form-control'}),
+            'participants': forms.SelectMultiple(attrs={'class': 'form-select'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
 
 class AddVisitForm(forms.Form):

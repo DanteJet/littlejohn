@@ -144,7 +144,21 @@ def session_create(request):
     if request.method == 'POST':
         form = TrainingSessionForm(request.POST)
         if form.is_valid():
-            form.save()
+            session = form.save()
+            if form.cleaned_data.get('fill_month'):
+                start = session.start
+                duration = session.duration_minutes
+                notes = session.notes
+                participants = session.participants.all()
+                next_start = start + timedelta(days=7)
+                while next_start.month == start.month:
+                    new_session = TrainingSession.objects.create(
+                        start=next_start,
+                        duration_minutes=duration,
+                        notes=notes,
+                    )
+                    new_session.participants.set(participants)
+                    next_start += timedelta(days=7)
             messages.success(request, 'Занятие создано')
             return redirect('sessions_week')
     else:
