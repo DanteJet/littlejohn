@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4" style="max-width: 640px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-header" style="background:#d8f3dc;">
+      <h5 class="m-0">Изменить абонемент — {{ child.first_name }} {{ child.last_name }}</h5>
+    </div>
+    <div class="card-body">
+      <form method="post">{% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Тип</label>
+          {{ form.sub_type }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Цена</label>
+          {{ form.price }}
+          <div class="form-text">По умолчанию подставится цена типа.</div>
+        </div>
+        <div class="mb-3 form-check">
+          {{ form.mark_paid }} <label class="form-check-label">Сразу отметить как оплачен (остаток будет заполнен)</label>
+        </div>
+        <div class="text-end">
+          <button class="btn btn-success">Сохранить</button>
+          <a href="{% url 'children_list' %}" class="btn btn-outline-secondary ms-2">Отмена</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

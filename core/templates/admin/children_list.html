@@ -71,6 +71,8 @@
                     <input type="hidden" name="child_id" value="{{ child.id }}">
                     <button class="btn btn-sm btn-success" title="Отметить оплату">Оплата</button>
                   </form>
+                  <a class="btn btn-sm btn-outline-secondary"
+                     href="{% url 'subscription_edit' child.id %}">Сменить тип</a>
                 {% else %}
                   {# выдать абонемент #}
                   <a class="btn btn-sm btn-outline-success"

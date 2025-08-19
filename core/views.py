@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from django.views.decorators.http import require_POST
+from django.urls import reverse
 
 from .forms import (
     AddVisitForm, StudentForm, ParentCreateForm,
@@ -173,6 +174,42 @@ def session_add_child(request, pk, child_id):
     session.participants.add(child)
     messages.success(request, f'Добавлен {child} в занятие.')
     return redirect('sessions_week')
+
+
+@login_required
+@user_passes_test(is_admin)
+def session_edit(request, pk):
+    session = get_object_or_404(TrainingSession, pk=pk)
+    week_start = session.start.date() - timedelta(days=session.start.weekday())
+
+    if request.method == 'POST':
+        form = TrainingSessionForm(request.POST, instance=session)
+        form.fields.pop('fill_month', None)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Занятие обновлено')
+            return redirect(f"{reverse('sessions_week')}?start={week_start:%Y-%m-%d}")
+    else:
+        form = TrainingSessionForm(instance=session)
+        form.fields.pop('fill_month', None)
+
+    return render(request, 'admin/session_edit.html', {
+        'form': form,
+        'session': session,
+        'week_start': week_start,
+    })
+
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def session_delete(request, pk):
+    session = get_object_or_404(TrainingSession, pk=pk)
+    start_date = session.start.date()
+    session.delete()
+    week_start = start_date - timedelta(days=start_date.weekday())
+    messages.success(request, 'Занятие удалено')
+    return redirect(f"{reverse('sessions_week')}?start={week_start:%Y-%m-%d}")
 
 @login_required
 @user_passes_test(is_admin)
@@ -401,6 +438,36 @@ def issue_subscription(request, pk):
     else:
         form = IssueSubscriptionForm()
     return render(request, 'admin/issue_subscription.html', {'form': form, 'child': child})
+
+
+@login_required
+@user_passes_test(is_admin)
+def subscription_edit(request, pk):
+    """Изменение типа абонемента для существующего ученика."""
+    child = get_object_or_404(Child, pk=pk, subscription__isnull=False)
+    sub = child.subscription
+
+    if request.method == 'POST':
+        form = IssueSubscriptionForm(request.POST)
+        if form.is_valid():
+            sub.sub_type = form.cleaned_data['sub_type']
+            sub.price = form.cleaned_data['price'] or sub.sub_type.price
+            if form.cleaned_data['mark_paid']:
+                sub.paid = True
+                sub.lessons_remaining = sub.sub_type.lessons_count
+            else:
+                if sub.lessons_remaining > sub.sub_type.lessons_count:
+                    sub.lessons_remaining = sub.sub_type.lessons_count
+            sub.save()
+            messages.success(request, 'Абонемент обновлён')
+            return redirect('children_list')
+    else:
+        form = IssueSubscriptionForm(initial={
+            'sub_type': sub.sub_type,
+            'price': sub.price or sub.sub_type.price,
+        })
+
+    return render(request, 'admin/subscription_edit.html', {'form': form, 'child': child, 'sub': sub})
 
 @login_required
 @user_passes_test(is_admin)

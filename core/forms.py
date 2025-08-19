@@ -162,6 +162,14 @@ class SubscriptionForm(forms.ModelForm):
         fields = ['child', 'sub_type', 'lessons_remaining', 'price', 'paid']
 
 class TrainingSessionForm(forms.ModelForm):
+    start = forms.DateTimeField(
+        label='Дата и время',
+        widget=forms.DateTimeInput(
+            format='%Y-%m-%dT%H:%M',
+            attrs={'type': 'datetime-local', 'class': 'form-control'}
+        ),
+        input_formats=['%Y-%m-%dT%H:%M']
+    )
     fill_month = forms.BooleanField(
         required=False,
         label='Заполнить на месяц',
@@ -172,15 +180,11 @@ class TrainingSessionForm(forms.ModelForm):
         model = TrainingSession
         fields = ['start', 'duration_minutes', 'participants', 'notes']
         labels = {
-            'start': 'Дата и время',
             'duration_minutes': 'Длительность (мин)',
             'participants': 'Участники',
             'notes': 'Примечания',
         }
         widgets = {
-            'start': forms.DateTimeInput(
-                attrs={'type': 'datetime-local', 'class': 'form-control'}
-            ),
             'duration_minutes': forms.NumberInput(
                 attrs={
                     'class': 'form-control stepper-input',
