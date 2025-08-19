@@ -464,7 +464,7 @@ def subscription_edit(request, pk):
     else:
         form = IssueSubscriptionForm(initial={
             'sub_type': sub.sub_type,
-            'price': sub.price,
+            'price': sub.price or sub.sub_type.price,
         })
 
     return render(request, 'admin/subscription_edit.html', {'form': form, 'child': child, 'sub': sub})
