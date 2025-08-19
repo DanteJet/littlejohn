@@ -171,11 +171,34 @@ class TrainingSessionForm(forms.ModelForm):
     class Meta:
         model = TrainingSession
         fields = ['start', 'duration_minutes', 'participants', 'notes']
+        labels = {
+            'start': 'Дата и время',
+            'duration_minutes': 'Длительность (мин)',
+            'participants': 'Участники',
+            'notes': 'Примечания',
+        }
         widgets = {
-            'start': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
-            'duration_minutes': forms.NumberInput(attrs={'class': 'form-control'}),
-            'participants': forms.SelectMultiple(attrs={'class': 'form-select'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'start': forms.DateTimeInput(
+                attrs={'type': 'datetime-local', 'class': 'form-control'}
+            ),
+            'duration_minutes': forms.NumberInput(
+                attrs={
+                    'class': 'form-control stepper-input',
+                    'min': 30,
+                    'max': 180,
+                    'step': 15,
+                }
+            ),
+            'participants': forms.SelectMultiple(
+                attrs={'class': 'form-select', 'size': 5}
+            ),
+            'notes': forms.Textarea(
+                attrs={
+                    'class': 'form-control',
+                    'rows': 2,
+                    'placeholder': 'Например: тема занятия',
+                }
+            ),
         }
 
 class AddVisitForm(forms.Form):
