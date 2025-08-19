@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4" style="max-width: 640px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-header" style="background:#d8f3dc;">
+      <h5 class="m-0">Редактировать тип абонемента — {{ stype.name }}</h5>
+    </div>
+    <div class="card-body">
+      <form method="post" novalidate class="grid-form">{% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.name.id_for_label }}">Название</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <div class="invalid-feedback d-block">{{ form.name.errors|striptags }}</div>
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.lessons_count.id_for_label }}">Кол-во занятий</label>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" data-step="-1" aria-label="Уменьшить">−</button>
+            {{ form.lessons_count }}
+            <button type="button" class="stepper-btn" data-step="1" aria-label="Увеличить">+</button>
+          </div>
+          {% if form.lessons_count.errors %}
+            <div class="invalid-feedback d-block">{{ form.lessons_count.errors|striptags }}</div>
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.price.id_for_label }}">Цена</label>
+          <div class="input-group">
+            <span class="input-group-text">₽</span>
+            {{ form.price }}
+          </div>
+          {% if form.price.errors %}
+            <div class="invalid-feedback d-block">{{ form.price.errors|striptags }}</div>
+          {% endif %}
+        </div>
+        <div class="text-end">
+          <button class="btn btn-success">Сохранить</button>
+          <a href="{% url 'subscription_types' %}" class="btn btn-outline-secondary ms-2">Отмена</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
