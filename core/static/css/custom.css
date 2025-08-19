@@ -16,10 +16,16 @@
 
 /* Keep text away from curved scroll edges */
 .price-card .card-body {
-  padding: 1.5rem 2rem;
+  padding: 1.8rem 3rem;
 }
 
 .price-card .card-title,
 .price-card .card-text {
   font-family: 'Playfair Display', serif;
+}
+
+.carousel-item img {
+  width: 80%;
+  max-height: 80vh;   /* не выше высоты окна */
+  object-fit: cover;   /* либо contain, если нужно видеть всю картинку */
 }
