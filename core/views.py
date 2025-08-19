@@ -4,7 +4,7 @@ from calendar import monthrange
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
-from django.contrib.auth.views import PasswordChangeView
+from django.contrib.auth.views import PasswordChangeView, LoginView
 from django.db.models import Prefetch, Count
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -31,6 +31,17 @@ def is_parent(user):
     return user.is_authenticated and user.groups.filter(name='Parent').exists() and not is_admin(user)
 
 # --- корневая ---
+
+class CustomLoginView(LoginView):
+    template_name = 'login.html'
+
+    def form_valid(self, form):
+        user = form.get_user()
+        first_login = user.last_login is None
+        response = super().form_valid(form)
+        if first_login and not is_admin(user) and user.groups.filter(name__in=['Parent', 'Student']).exists():
+            return redirect('password_change')
+        return response
 
 @login_required
 def home(request):

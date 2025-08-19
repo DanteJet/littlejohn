@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('password/change/', views.CustomPasswordChangeView.as_view(), name='password_change'),
 
     # Админ
     path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
@@ -35,5 +36,5 @@ urlpatterns = [
 
     path('children/<int:pk>/delete/', views.child_delete, name='child_delete'),
     path('parents/<int:user_id>/delete/', views.parent_delete, name='parent_delete'),
-    
+
 ]
