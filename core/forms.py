@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User, Group
 from .models import Child, SubscriptionType, Subscription, TrainingSession
+from datetime import datetime
 
 
 class BootstrapPasswordChangeForm(PasswordChangeForm):
@@ -170,13 +171,21 @@ class SubscriptionForm(forms.ModelForm):
         fields = ['child', 'sub_type', 'lessons_remaining', 'price', 'paid']
 
 class TrainingSessionForm(forms.ModelForm):
-    start = forms.DateTimeField(
-        label='Дата и время',
-        widget=forms.DateTimeInput(
-            format='%Y-%m-%dT%H:%M',
-            attrs={'type': 'datetime-local', 'class': 'form-control'}
+    date = forms.DateField(
+        label='Дата',
+        widget=forms.DateInput(
+            format='%Y-%m-%d',
+            attrs={'type': 'date', 'class': 'form-control'}
         ),
-        input_formats=['%Y-%m-%dT%H:%M']
+        input_formats=['%Y-%m-%d']
+        )
+    time = forms.TimeField(
+        label='Время',
+        widget=forms.TimeInput(
+            format='%H:%M',
+            attrs={'type': 'time', 'class': 'form-control'}
+        ),
+        input_formats=['%H:%M']
     )
     fill_month = forms.BooleanField(
         required=False,
@@ -186,7 +195,7 @@ class TrainingSessionForm(forms.ModelForm):
 
     class Meta:
         model = TrainingSession
-        fields = ['start', 'duration_minutes', 'participants', 'notes']
+        fields = ['date', 'time', 'duration_minutes', 'participants', 'notes']
         labels = {
             'duration_minutes': 'Длительность (мин)',
             'participants': 'Участники',
@@ -212,6 +221,22 @@ class TrainingSessionForm(forms.ModelForm):
                 }
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.start:
+            self.fields['date'].initial = self.instance.start.date()
+            self.fields['time'].initial = self.instance.start.strftime('%H:%M')
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        date = self.cleaned_data['date']
+        time = self.cleaned_data['time']
+        instance.start = datetime.combine(date, time)
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
 
 class AddVisitForm(forms.Form):
     child_id = forms.IntegerField(widget=forms.HiddenInput)

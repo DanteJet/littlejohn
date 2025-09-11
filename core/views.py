@@ -158,6 +158,21 @@ def sessions_week(request):
     
     slots_by_day = _group_timeslots(sessions)
 
+    # Собираем все уникальные времена начала занятий в течение недели
+    times = sorted({slot['start'].time()
+                    for day_slots in slots_by_day.values()
+                    for slot in day_slots})
+
+    # Формируем строковые данные для таблицы: для каждого времени - слоты по дням
+    table_rows = []
+    for t in times:
+        row = []
+        for day in days:
+            day_slots = slots_by_day.get(day, [])
+            slot = next((s for s in day_slots if s['start'].time() == t), None)
+            row.append(slot)
+        table_rows.append({'time': t, 'slots': row})
+
     form = TrainingSessionForm()
     context = {
         'days': days,
@@ -167,6 +182,7 @@ def sessions_week(request):
         'prev_start': start - timedelta(days=7),
         'next_start': start + timedelta(days=7),
         'slots_by_day': slots_by_day,
+        'table_rows': table_rows,
     }
     return render(request, 'admin/sessions_week.html', context)
 
@@ -568,6 +584,21 @@ def child_detail(request, pk):
         'sub': sub,
         'sessions': sessions,
     })
+
+@login_required
+@user_passes_test(is_admin)
+def child_sessions_delete(request, pk):
+    child = get_object_or_404(Child, pk=pk)
+    if request.method == 'POST':
+        ids = request.POST.getlist('session_ids')
+        if ids:
+            sessions = TrainingSession.objects.filter(id__in=ids, participants=child)
+            for session in sessions:
+                session.participants.remove(child)
+            messages.success(request, f'Удалено занятий: {sessions.count()}')
+        else:
+            messages.error(request, 'Не выбрано ни одного занятия.')
+    return redirect('child_detail', pk=pk)
 
 @login_required
 @user_passes_test(is_admin)

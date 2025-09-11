@@ -16,9 +16,15 @@
 
         <div class="row g-3 align-items-center mb-3">
           <div class="col-12 col-sm-4">
-            <label class="form-label mb-0" for="{{ form.start.id_for_label }}">{{ form.start.label }}</label>
+             <label class="form-label mb-0" for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+          <div class="col-12 col-sm-8">{{ form.date }}</div>
+        </div>
+
+        <div class="row g-3 align-items-center mb-3">
+          <div class="col-12 col-sm-4">
+            <label class="form-label mb-0" for="{{ form.time.id_for_label }}">{{ form.time.label }}</label>
           </div>
-          <div class="col-12 col-sm-8">{{ form.start }}</div>
+          <div class="col-12 col-sm-8">{{ form.time }}</div>
         </div>
 
         <div class="row g-3 align-items-center mb-3">

@@ -49,20 +49,42 @@
           <h6 class="text-muted mb-2 mt-2">Занятия</h6>
           <div class="table-responsive">
             <table class="table table-sm table-striped mb-0">
-              <thead><tr><th>Дата</th><th>Время</th><th>Примечание</th></tr></thead>
+              <thead>
+                <tr>
+                  <th style="width:1%"></th>
+                  <th>Дата</th>
+                  <th>Время</th>
+                  <th>Примечание</th>
+                  <th style="width:1%"></th>
+                </tr>
+              </thead>
               <tbody>
                 {% for s in sessions %}
                   <tr>
+                    <td>
+                      <input type="checkbox" name="session_ids" value="{{ s.id }}" form="sessionsDeleteForm">
+                    </td>
                     <td>{{ s.start|date:'d.m.Y' }}</td>
                     <td>{{ s.start|date:'H:i' }}–{{ s.end|date:'H:i' }}</td>
                     <td>{{ s.notes|default:"—" }}</td>
+                    <td>
+                      <form method="post" action="{% url 'child_sessions_delete' child.id %}" class="m-0">
+                        {% csrf_token %}
+                        <input type="hidden" name="session_ids" value="{{ s.id }}">
+                        <button class="btn btn-sm btn-outline-danger" title="Удалить занятие" aria-label="Удалить занятие">×</button>
+                      </form>
+                    </td>
                   </tr>
                 {% empty %}
-                  <tr><td colspan="3" class="text-muted">Занятий ещё нет</td></tr>
+                  <tr><td colspan="5" class="text-muted">Занятий ещё нет</td></tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
+          <form id="sessionsDeleteForm" method="post" action="{% url 'child_sessions_delete' child.id %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger">Удалить выбранные</button>
+          </form>
         </div>
       </div>
     </div>

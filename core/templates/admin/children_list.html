@@ -4,7 +4,10 @@
 
 {% block content %}
 <h3>Ученики</h3>
-<table class="table table-striped align-middle">
+<div class="mb-3">
+  <input type="text" id="child-filter" class="form-control" placeholder="Фильтр по имени">
+</div>
+<table id="children-table" class="table table-striped align-middle">
   <thead>
     <tr>
       <th>Имя</th>
@@ -21,7 +24,11 @@
     {% for child in children %}
       {% with sub=subs|get_item:child.id %}
       <tr>
-        <td>{{ child.first_name }} {{ child.last_name }}</td>
+        <td>
+          <a href="{% url 'child_detail' child.id %}" class="link-dark text-decoration-none">
+            {{ child.first_name }} {{ child.last_name }}
+          </a>
+        </td>
         <td>
           {% if child.is_adult %}
             <span class="badge text-bg-secondary">Взрослый</span>
@@ -93,4 +100,15 @@
     {% endfor %}
   </tbody>
 </table>
+<script>
+  const filterInput = document.getElementById('child-filter');
+  const table = document.getElementById('children-table');
+  filterInput.addEventListener('input', () => {
+    const term = filterInput.value.toLowerCase();
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const name = row.querySelector('td').innerText.toLowerCase();
+      row.style.display = name.includes(term) ? '' : 'none';
+    });
+  });
+</script>
 {% endblock %}
