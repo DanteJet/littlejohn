@@ -461,6 +461,68 @@ def mark_payment(request):
 # --- родитель ---
 
 @login_required
+def schedule_month(request):
+    """Календарь на месяц со всеми занятиями для родителей и взрослых учеников."""
+    if is_admin(request.user):
+        return redirect('sessions_month')
+
+    today = timezone.localdate()
+    try:
+        year = int(request.GET.get('year', today.year))
+        month = int(request.GET.get('month', today.month))
+    except (TypeError, ValueError):
+        year, month = today.year, today.month
+
+    while month < 1:
+        year -= 1
+        month += 12
+    while month > 12:
+        year += 1
+        month -= 12
+
+    first_day = date(year, month, 1)
+    _, days_in_month = monthrange(year, month)
+    days = [first_day + timedelta(days=i) for i in range(days_in_month)]
+
+    sessions = (TrainingSession.objects
+                .filter(start__year=year, start__month=month)
+                .prefetch_related('participants'))
+    slots_by_day = _group_timeslots(sessions)
+
+    if month == 1:
+        prev_year, prev_month = year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
+    if month == 12:
+        next_year, next_month = year + 1, 1
+    else:
+        next_year, next_month = year, month + 1
+
+    weeks = []
+    week = [None] * first_day.weekday()
+    for day in days:
+        week.append(day)
+        if len(week) == 7:
+            weeks.append(week)
+            week = []
+    if week:
+        week += [None] * (7 - len(week))
+        weeks.append(week)
+
+    context = {
+        'days': days,
+        'month': month,
+        'year': year,
+        'prev_year': prev_year,
+        'prev_month': prev_month,
+        'next_year': next_year,
+        'next_month': next_month,
+        'slots_by_day': slots_by_day,
+        'weeks': weeks,
+    }
+    return render(request, 'parent/schedule_month.html', context)
+
+@login_required
 def my_schedule(request):
     # Админа отправим в дашборд
     if is_admin(request.user):

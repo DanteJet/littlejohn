@@ -13,9 +13,11 @@
             <li class="nav-item"><a class="nav-link" href="{% url 'child_create' %}">Создать ученика</a></li>
           {% elif IS_PARENT %}
             <li class="nav-item"><a class="nav-link" href="{% url 'my_schedule' %}">Моё расписание</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'schedule_month' %}">Расписание (месяц)</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'my_children' %}">Мои дети</a></li>
           {% elif IS_STUDENT %}
             <li class="nav-item"><a class="nav-link" href="{% url 'my_schedule' %}">Моё расписание</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'schedule_month' %}">Расписание (месяц)</a></li>
           {% endif %}
         </ul>
         <div class="d-flex align-items-center ms-auto">

@@ -2,7 +2,7 @@ from datetime import date
 from django.test import TestCase
 from django.urls import reverse
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from decimal import Decimal
 from .models import SubscriptionType
 
@@ -33,3 +33,16 @@ class SubscriptionTypeEditTests(TestCase):
         self.assertEqual(self.type.name, 'Pro')
         self.assertEqual(self.type.lessons_count, 12)
         self.assertEqual(self.type.price, Decimal('150.00'))
+
+
+class ScheduleMonthViewTests(TestCase):
+    def setUp(self):
+        self.parent = User.objects.create_user(username='parent', password='pass')
+        group = Group.objects.create(name='Parent')
+        self.parent.groups.add(group)
+
+    def test_parent_can_view_month_schedule(self):
+        self.client.login(username='parent', password='pass')
+        response = self.client.get(reverse('schedule_month'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('weeks', response.context)

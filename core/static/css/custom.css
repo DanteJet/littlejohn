@@ -24,8 +24,75 @@
   font-family: 'Playfair Display', serif;
 }
 
-.carousel-item img {
-  width: 80%;
-  max-height: 80vh;   /* не выше высоты окна */
-  object-fit: cover;   /* либо contain, если нужно видеть всю картинку */
+/* Custom photo slider */
+.photo-slider {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+
+.photo-slider .slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: transform 0.5s ease, filter 0.5s ease, opacity 0.5s ease;
+}
+
+.photo-slider .slide img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.photo-slider .slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  filter: none;
+  z-index: 2;
+}
+
+.photo-slider .slide.prev {
+  opacity: 1;
+  transform: translateX(-110%) scale(0.8);
+  filter: blur(4px);
+  z-index: 1;
+}
+
+.photo-slider .slide.next {
+  opacity: 1;
+  transform: translateX(110%) scale(0.8);
+  filter: blur(4px);
+  z-index: 1;
+}
+
+.photo-slider .slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.photo-slider .slider-btn.prev {
+  left: 10px;
+}
+
+.photo-slider .slider-btn.next {
+  right: 10px;
 }

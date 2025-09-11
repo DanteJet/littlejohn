@@ -30,6 +30,7 @@ urlpatterns = [
     path('payment/mark/', views.mark_payment, name='mark_payment'),
 
     # Родитель
+    path('schedule/month/', views.schedule_month, name='schedule_month'),
     path('my/schedule/', views.my_schedule, name='my_schedule'),
     path('my/children/', views.my_children, name='my_children'),
 

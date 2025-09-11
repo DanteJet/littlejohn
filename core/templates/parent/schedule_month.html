@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load get_item %}
+
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="m-0">
+      Расписание — месяц
+      {% if month %}{{ month|date:"F Y" }}{% endif %}
+    </h4>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary" href="?year={{ prev_year }}&month={{ prev_month }}">← Предыдущий</a>
+      <a class="btn btn-sm btn-outline-secondary" href="?year={{ next_year }}&month={{ next_month }}">Следующий →</a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered align-top">
+      <thead class="table-light">
+        <tr class="text-center">
+          <th>Пн</th>
+          <th>Вт</th>
+          <th>Ср</th>
+          <th>Чт</th>
+          <th>Пт</th>
+          <th>Сб</th>
+          <th>Вс</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for week in weeks %}
+          <tr>
+            {% for day in week %}
+              <td style="width:14.28%; vertical-align: top;" class="{% if day and month and day|date:'m' != month|date:'m' %}text-muted bg-light{% endif %}">
+                {% if day %}
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-semibold">{{ day|date:"d.m" }}</span>
+                  </div>
+                  {% with slots=slots_by_day|get_item:day %}
+                    {% if slots %}
+                      {% for slot in slots %}
+                        <div class="border rounded p-2 mb-2 calendar-slot">
+                          <div class="small fw-semibold">{{ slot.start|date:"H:i" }}–{{ slot.end|date:"H:i" }}</div>
+                          <div class="small mt-1">
+                            <span class="fw-semibold">Занимающиеся ({{ slot.participants|length }}):</span>
+                            {{ slot.participants|join:", " }}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                  {% endwith %}
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

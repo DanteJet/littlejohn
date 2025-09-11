@@ -85,30 +85,49 @@
   </div>
 </div>
 
-<div id="clubCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="{% static 'img/1.jpg' %}" class="d-block w-100" alt="...">
-    </div>
-    <div class="carousel-item">
-      <img src="{% static 'img/2.jpg' %}" class="d-block w-100" alt="...">
-    </div>
-    <div class="carousel-item">
-      <img src="{% static 'img/3.jpg' %}" class="d-block w-100" alt="...">
-    </div>
-    <div class="carousel-item">
-      <img src="{% static 'img/4.jpg' %}" class="d-block w-100" alt="...">
-    </div>
-  </div>
-  <button class="carousel-control-prev" type="button" data-bs-target="#clubCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#clubCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-  </button>
+<div class="photo-slider mb-5">
+  <button class="slider-btn prev" aria-label="Previous">&lt;</button>
+  <button class="slider-btn next" aria-label="Next">&gt;</button>
+  <div class="slide"><img src="{% static 'img/1.jpg' %}" alt="фото 1"></div>
+  <div class="slide"><img src="{% static 'img/2.jpg' %}" alt="фото 2"></div>
+  <div class="slide"><img src="{% static 'img/3.jpg' %}" alt="фото 3"></div>
+  <div class="slide"><img src="{% static 'img/4.jpg' %}" alt="фото 4"></div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const slider = document.querySelector('.photo-slider');
+    if (!slider) return;
+    const slides = slider.querySelectorAll('.slide');
+    const btnPrev = slider.querySelector('.prev');
+    const btnNext = slider.querySelector('.next');
+    let index = 0;
+
+    function update() {
+      slides.forEach((slide, i) => {
+        slide.classList.remove('prev', 'next', 'active');
+        if (i === index) {
+          slide.classList.add('active');
+        } else if (i === (index - 1 + slides.length) % slides.length) {
+          slide.classList.add('prev');
+        } else if (i === (index + 1) % slides.length) {
+          slide.classList.add('next');
+        }
+      });
+    }
+
+    btnPrev.addEventListener('click', () => {
+      index = (index - 1 + slides.length) % slides.length;
+      update();
+    });
+
+    btnNext.addEventListener('click', () => {
+      index = (index + 1) % slides.length;
+      update();
+    });
+
+    update();
+  });
+</script>
 
 <div class="container my-5">
   <h2 class="text-center mb-4">Расписание занятий</h2>
@@ -163,7 +182,7 @@
 
 <footer class="bg-light py-3 mt-5">
   <div class="container text-center small">
-    ООО "Малыш Джон", ОГРН 0000000000000, ИНН 0000000000, адрес: г. Москва, ул. Примерная, д. 1
+    ООО Спортивный клуб "Малыш Джон", ОГРН 1253800007559, ИНН 3808292159, адрес: г. Иркутск, ул. Улан-Баторская, д. 2
   </div>
 </footer>
 {% endblock %}
