@@ -709,12 +709,14 @@ def _group_timeslots(sessions_qs):
     """
     slots_by_day = defaultdict(lambda: OrderedDict())
     for s in sessions_qs:
-        day = s.start.date()
-        key = (s.start, s.end)
+        start = timezone.localtime(s.start)
+        end = timezone.localtime(s.end)
+        day = start.date()
+        key = (start, end)
         if key not in slots_by_day[day]:
             slots_by_day[day][key] = {
-                'start': s.start,
-                'end': s.end,
+                'start': start,
+                'end': end,
                 'participants': {},
                 'session_ids': [s.id],
             }
