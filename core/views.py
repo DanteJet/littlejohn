@@ -134,7 +134,18 @@ def home(request):
 @login_required
 @user_passes_test(is_admin)
 def admin_dashboard(request):
-    return render(request, 'admin/dashboard.html')
+    today = timezone.localdate()
+    upcoming = []
+    for child in Child.objects.filter(birth_date__isnull=False):
+        bd = child.birth_date.replace(year=today.year)
+        if bd < today:
+            bd = bd.replace(year=today.year + 1)
+        days_left = (bd - today).days
+        if 0 <= days_left <= 3:
+            upcoming.append({'child': child, 'date': bd, 'days_left': days_left})
+    upcoming.sort(key=lambda x: x['date'])
+    context = {'upcoming_birthdays': upcoming}
+    return render(request, 'admin/dashboard.html', context)
 
 @login_required
 @user_passes_test(is_admin)

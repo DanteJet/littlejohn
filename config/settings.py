@@ -43,6 +43,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.user_roles',
+                'core.context_processors.upcoming_birthdays',
             ],
         },
     },

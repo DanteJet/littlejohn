@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from datetime import date, timedelta
+from django.utils import timezone
 from django.contrib.auth.models import User, Group
 from decimal import Decimal
 from .models import SubscriptionType, Child, TrainingSession
@@ -81,3 +82,17 @@ class ChildSessionDeleteTests(TestCase):
         resp = self.client.post(url, {'session_ids': [self.session1.id, self.session2.id]})
         self.assertRedirects(resp, reverse('child_detail', args=[self.child.pk]))
         self.assertEqual(self.child.sessions.count(), 0)
+
+
+class UpcomingBirthdaysBannerTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user(username="admin", password="pass", is_staff=True)
+        self.child = Child.objects.create(
+            first_name="Test", last_name="Kid", birth_date=timezone.localdate() + timedelta(days=1)
+        )
+
+    def test_banner_visible_on_children_list(self):
+        self.client.login(username="admin", password="pass")
+        resp = self.client.get(reverse("children_list"))
+        self.assertContains(resp, "Скоро дни рождения")
+        self.assertContains(resp, "Test Kid")

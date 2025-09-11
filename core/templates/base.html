@@ -35,6 +35,14 @@
 <body>
   {% include 'includes/navbar.html' %}
   <main class="container py-4">
+    {% if upcoming_birthdays %}
+      <div class="alert alert-info text-center">
+        <strong>Скоро дни рождения:</strong>
+        {% for b in upcoming_birthdays %}
+          <div>{{ b.child }} — {{ b.date|date:"j E" }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
     {% for message in messages %}
       <div class="alert alert-{{ message.tags }}">{{ message }}</div>
     {% endfor %}
