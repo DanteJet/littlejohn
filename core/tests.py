@@ -6,7 +6,7 @@ from datetime import date, timedelta
 from django.utils import timezone
 from django.contrib.auth.models import User, Group
 from decimal import Decimal
-from .models import SubscriptionType, Child, TrainingSession
+from .models import SubscriptionType, Subscription, Child, TrainingSession
 
 
 class CalendarAlignmentTests(TestCase):
@@ -48,6 +48,47 @@ class ScheduleMonthViewTests(TestCase):
         response = self.client.get(reverse('schedule_month'))
         self.assertEqual(response.status_code, 200)
         self.assertIn('weeks', response.context)
+
+
+class StudentSubscriptionViewTests(TestCase):
+    def setUp(self):
+        self.group = Group.objects.create(name='Student')
+        self.user = User.objects.create_user(username='student', password='pass')
+        self.user.groups.add(self.group)
+        self.child = Child.objects.create(
+            first_name='Adult',
+            last_name='Learner',
+            is_adult=True,
+            account_user=self.user,
+        )
+        self.sub_type = SubscriptionType.objects.create(
+            name='Adult Pass',
+            lessons_count=8,
+            price=Decimal('120.00'),
+        )
+        self.subscription = Subscription.objects.create(
+            child=self.child,
+            sub_type=self.sub_type,
+            lessons_remaining=5,
+            price=Decimal('120.00'),
+            paid=True,
+        )
+
+    def test_student_can_view_subscription(self):
+        self.client.login(username='student', password='pass')
+        response = self.client.get(reverse('my_subscription'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Мой абонемент')
+        self.assertContains(response, 'Adult Pass (8)')
+        self.assertContains(response, '5')
+        self.assertContains(response, 'Оплачен')
+
+    def test_student_without_subscription_sees_message(self):
+        self.subscription.delete()
+        self.client.login(username='student', password='pass')
+        response = self.client.get(reverse('my_subscription'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'У вас пока нет оформленного абонемента')
 
 
 class ChildSessionDeleteTests(TestCase):

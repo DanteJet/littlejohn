@@ -55,6 +55,13 @@ def is_admin(user):
 def is_parent(user):
     return user.is_authenticated and user.groups.filter(name='Parent').exists() and not is_admin(user)
 
+def is_student(user):
+    return (
+        user.is_authenticated
+        and user.groups.filter(name='Student').exists()
+        and not (is_admin(user) or is_parent(user))
+    )
+
 # --- корневая ---
 
 def home(request):
@@ -573,6 +580,25 @@ def my_schedule(request):
         'sessions': sessions,
         'show_children': False,
     })
+
+@login_required
+@user_passes_test(is_student)
+def my_subscription(request):
+    student = getattr(request.user, 'student_profile', None)
+    if not student:
+        return HttpResponseForbidden('Нет доступа.')
+    try:
+        subscription = student.subscription
+    except Subscription.DoesNotExist:
+        subscription = None
+    return render(
+        request,
+        'student/my_subscription.html',
+        {
+            'student': student,
+            'subscription': subscription,
+        },
+    )
 
 @login_required
 @user_passes_test(is_parent)

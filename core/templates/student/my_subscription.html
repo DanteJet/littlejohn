@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>Мой абонемент</h3>
+{% if subscription %}
+<table class="table table-striped w-auto">
+  <thead>
+    <tr>
+      <th>Абонемент</th>
+      <th>Посещено</th>
+      <th>Остаток</th>
+      <th>Статус оплаты</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ subscription.sub_type.name }} ({{ subscription.total_lessons }})</td>
+      <td>{{ subscription.used_lessons }}</td>
+      <td>{{ subscription.lessons_remaining }}</td>
+      <td>
+        {% if subscription.paid %}
+          <span class="badge text-bg-success">Оплачен</span>
+        {% else %}
+          <span class="badge text-bg-danger">Не оплачен</span>
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+{% else %}
+<p>У вас пока нет оформленного абонемента. Обратитесь к администратору для получения информации.</p>
+{% endif %}
+{% endblock %}

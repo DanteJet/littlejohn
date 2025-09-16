@@ -18,6 +18,7 @@
           {% elif IS_STUDENT %}
             <li class="nav-item"><a class="nav-link" href="{% url 'my_schedule' %}">Моё расписание</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'schedule_month' %}">Расписание (месяц)</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'my_subscription' %}">Мой абонемент</a></li>
           {% endif %}
         </ul>
         <div class="d-flex align-items-center ms-auto">
