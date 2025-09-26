@@ -67,7 +67,7 @@ class Subscription(models.Model):
 
     def add_visit(self):
         """Уменьшает остаток на 1. Если стал 0 — делает paid=False (красный статус)."""
-        if not self.paid or self.lessons_remaining == 0:
+        if self.lessons_remaining == 0:
             return False
         self.lessons_remaining -= 1
         if self.lessons_remaining == 0:

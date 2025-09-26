@@ -188,7 +188,7 @@ def sessions_week(request):
         for day in days:
             day_slots = slots_by_day.get(day, [])
             slot = next((s for s in day_slots if s['start'].time() == t), None)
-            row.append(slot)
+            row.append({'day': day, 'slot': slot})
         table_rows.append({'time': t, 'slots': row})
 
     form = TrainingSessionForm()
@@ -201,6 +201,7 @@ def sessions_week(request):
         'next_start': start + timedelta(days=7),
         'slots_by_day': slots_by_day,
         'table_rows': table_rows,
+        'today': today,
     }
     return render(request, 'admin/sessions_week.html', context)
 
@@ -260,11 +261,13 @@ def sessions_month(request):
         'days': days,
         'month': month,
         'year': year,
+        'month_date': first_day,
         'sessions': sessions,
         'prev_year': prev_year, 'prev_month': prev_month,
         'next_year': next_year, 'next_month': next_month,
         'slots_by_day': slots_by_day,
         'weeks': weeks,  # Передаем недели для календаря
+        'today': today,
     })
 
 @login_required
@@ -475,7 +478,7 @@ def add_visit(request):
             if sub and sub.add_visit():
                 messages.success(request, f'Зачтено посещение для {child}. Остаток: {sub.lessons_remaining}.')
             else:
-                messages.error(request, 'Нельзя зачесть посещение: нет активного оплаченного абонемента или нулевой остаток.')
+                messages.error(request, 'Нельзя зачесть посещение: нет абонемента или закончились занятия.')
     return redirect('children_list')
 
 @login_required
@@ -553,6 +556,7 @@ def schedule_month(request):
         'next_month': next_month,
         'slots_by_day': slots_by_day,
         'weeks': weeks,
+        'today': today,
     }
     return render(request, 'parent/schedule_month.html', context)
 

@@ -94,7 +94,7 @@
       <tr>
         <th>Время</th>
         {% for day in days %}
-          <th>{{ day|date:"D, d.m" }}</th>
+          <th class="{% if day == today %}table-success{% endif %}">{{ day|date:"D, d.m" }}</th>
         {% endfor %}
       </tr>
     </thead>
@@ -102,35 +102,38 @@
       {% for row in table_rows %}
         <tr>
           <th class="text-nowrap">{{ row.time|time:"H:i" }}</th>
-          {% for slot in row.slots %}
-            <td>
-              {% if slot %}
-                <div class="fw-semibold">{{ slot.start|date:"H:i" }}–{{ slot.end|date:"H:i" }}</div>
-
+          {% for cell in row.slots %}
+            <td class="{% if cell.day == today %}table-success{% endif %}">
+              {% with slot=cell.slot %}
+                {% if slot %}
+                  <div class="fw-semibold">{{ slot.start|date:"H:i" }}–{{ slot.end|date:"H:i" }}</div>
+                
                 <div class="small mt-1">
-                  Участники:
-                  {% if slot.participants %}
-                    {% for p in slot.participants %}
-                      <span class="badge text-bg-success me-1">{{ p.first_name }}</span>
-                    {% endfor %}
-                  {% else %}
-                    <span class="text-muted">пока нет</span>
-                  {% endif %}
-                  {% if slot.session_ids|length > 1 %}
-                    <span class="badge text-bg-warning ms-1">объединено {{ slot.session_ids|length }}</span>
-                  {% endif %}
-                </div>
+                    Участники:
+                    {% if slot.participants %}
+                      {% for p in slot.participants %}
+                        <span class="badge text-bg-success me-1">{{ p.first_name }}</span>
+                      {% endfor %}
+                    {% else %}
+                      <span class="text-muted">пока нет</span>
+                    {% endif %}
+                    {% if slot.session_ids|length > 1 %}
+                      <span class="badge text-bg-warning ms-1">объединено {{ slot.session_ids|length }}</span>
+                    {% endif %}
+                  </div>
 
                 <div class="mt-2 d-flex gap-1 justify-content-center">
-                  <a href="{% url 'session_edit' slot.session_ids.0 %}" class="btn btn-sm btn-outline-primary">Ред.</a>
-                  <form method="post" action="{% url 'session_delete' slot.session_ids.0 %}" onsubmit="return confirm('Удалить занятие?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
-                  </form>
-                </div>
-{% else %}
-                <span class="text-muted">—</span>
-              {% endif %}
+                    <a href="{% url 'session_edit' slot.session_ids.0 %}" class="btn btn-sm btn-outline-primary">Ред.</a>
+                    <form method="post" action="{% url 'session_delete' slot.session_ids.0 %}" onsubmit="return confirm('Удалить занятие?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                    </form>
+                  </div>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              {% endwith %}
+              
             </td>
           {% endfor %}
         </tr>

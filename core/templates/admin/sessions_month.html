@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="m-0">
       Расписание — месяц
-      {% if month %}{{ month|date:"F Y" }}{% endif %}
+      {% if month_date %}{{ month_date|date:"F Y" }}{% endif %}
     </h4>
 
     <div class="d-flex gap-2">
@@ -40,7 +40,7 @@
           <tr>
             {% for day in week %}
               <td style="width:14.28%; vertical-align: top;"
-                  class="{% if day and month and day|date:'m' != month|date:'m' %}text-muted bg-light{% endif %}">
+                  class="{% if day and day.month != month %}text-muted bg-light{% endif %}{% if day and day|date:'Y-m-d' == today|date:'Y-m-d' %} table-success{% endif %}">
                 {% if day %}
                   <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="small fw-semibold">{{ day|date:"d.m" }}</span>
