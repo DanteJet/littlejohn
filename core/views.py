@@ -497,8 +497,8 @@ def mark_payment(request):
         child = get_object_or_404(Child, pk=child_id)
         sub = getattr(child, 'subscription', None)
         if sub:
-            sub.mark_paid_and_reset()
-            messages.success(request, f'Оплата отмечена для {child}. Остаток установлен: {sub.lessons_remaining}.')
+            sub.mark_paid()
+            messages.success(request, f'Оплата отмечена для {child}. Остаток: {sub.lessons_remaining}.')
         else:
             messages.error(request, 'Абонемент не найден')
     return redirect('children_list')
