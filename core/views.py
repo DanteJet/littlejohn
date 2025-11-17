@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import views as auth_views
+from django.db import transaction
 from django.db.models import Prefetch, Count
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -19,7 +20,7 @@ from .forms import (
     BootstrapPasswordChangeForm,
 )
 
-from .models import Child, Subscription, SubscriptionType, TrainingSession
+from .models import Child, Subscription, SubscriptionType, TrainingSession, Visit
 from collections import defaultdict, OrderedDict
 
 # --- аутентификация ---
@@ -475,10 +476,17 @@ def add_visit(request):
             child_id = form.cleaned_data['child_id']
             child = get_object_or_404(Child, pk=child_id)
             sub = getattr(child, 'subscription', None)
-            if sub and sub.add_visit():
-                messages.success(request, f'Зачтено посещение для {child}. Остаток: {sub.lessons_remaining}.')
-            else:
-                messages.error(request, 'Нельзя зачесть посещение: нет абонемента или закончились занятия.')
+            if sub:
+                with transaction.atomic():
+                    added = sub.add_visit()
+                    if added:
+                        Visit.objects.create(child=child, recorded_by=request.user)
+                        messages.success(
+                            request,
+                            f'Зачтено посещение для {child}. Остаток: {sub.lessons_remaining}.',
+                        )
+                        return redirect('children_list')
+            messages.error(request, 'Нельзя зачесть посещение: нет абонемента или закончились занятия.')
     return redirect('children_list')
 
 @login_required
@@ -615,15 +623,18 @@ def my_children(request):
 @user_passes_test(is_admin)
 def child_detail(request, pk):
     child = get_object_or_404(
-        Child.objects.select_related('parent').prefetch_related('sessions', 'subscription__sub_type'),
-        pk=pk
+        Child.objects.select_related('parent')
+        .prefetch_related('sessions', 'subscription__sub_type', 'visits__recorded_by'),
+        pk=pk,
     )
     sub = getattr(child, 'subscription', None)
-    sessions = (child.sessions.all().order_by('-start'))  # последние сверху
+    sessions = child.sessions.all().order_by('-start')  # последние сверху
+    visits = child.visits.all()
     return render(request, 'admin/child_detail.html', {
         'child': child,
         'sub': sub,
         'sessions': sessions,
+        'visits': visits,
     })
 
 @login_required

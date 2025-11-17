@@ -86,6 +86,41 @@
             <button type="submit" class="btn btn-sm btn-outline-danger">Удалить выбранные</button>
           </form>
         </div>
+        <div class="col-12 mt-4">
+          <h6 class="text-muted mb-2">Посещения</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0">
+              <thead>
+                <tr>
+                  <th style="width:1%">#</th>
+                  <th>Дата</th>
+                  <th>Время</th>
+                  <th>Отметил</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for visit in visits %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ visit.recorded_at|date:'d.m.Y' }}</td>
+                    <td>{{ visit.recorded_at|date:'H:i' }}</td>
+                    <td>
+                      {% if visit.recorded_by %}
+                        {{ visit.recorded_by.get_full_name|default:visit.recorded_by.username }}
+                      {% else %}
+                        <span class="text-muted">—</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-muted">Посещений ещё нет</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>

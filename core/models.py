@@ -92,3 +92,24 @@ class TrainingSession(models.Model):
     @property
     def end(self):
         return self.start + timedelta(minutes=self.duration_minutes)
+
+
+class Visit(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='visits', verbose_name='Ученик')
+    recorded_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата посещения')
+    recorded_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='recorded_visits',
+        verbose_name='Отметил',
+    )
+
+    class Meta:
+        ordering = ['-recorded_at']
+        verbose_name = 'Посещение'
+        verbose_name_plural = 'Посещения'
+
+    def __str__(self):
+        return f"Посещение {self.child} от {self.recorded_at:%d.%m.%Y %H:%M}"
