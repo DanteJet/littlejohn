@@ -6,7 +6,7 @@ from datetime import date, timedelta
 from django.utils import timezone
 from django.contrib.auth.models import User, Group
 from decimal import Decimal
-from .models import SubscriptionType, Subscription, Child, TrainingSession
+from .models import SubscriptionType, Subscription, Child, TrainingSession, Visit
 
 
 class CalendarAlignmentTests(TestCase):
@@ -137,3 +137,127 @@ class UpcomingBirthdaysBannerTests(TestCase):
         resp = self.client.get(reverse("children_list"))
         self.assertContains(resp, "Скоро дни рождения")
         self.assertContains(resp, "Test Kid")
+
+
+class VisitAndPaymentLogicTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user(username='admin', password='pass', is_staff=True)
+        self.child = Child.objects.create(first_name='Test', last_name='Kid')
+        self.sub_type = SubscriptionType.objects.create(name='Base', lessons_count=2, price=Decimal('100.00'))
+        self.subscription = Subscription.objects.create(
+            child=self.child,
+            sub_type=self.sub_type,
+            lessons_remaining=1,
+            paid=True,
+        )
+
+    def test_last_paid_visit_marks_subscription_unpaid(self):
+        self.client.login(username='admin', password='pass')
+        response = self.client.post(reverse('add_visit'), {'child_id': self.child.id})
+        self.assertRedirects(response, reverse('children_list'))
+        self.subscription.refresh_from_db()
+        self.assertEqual(self.subscription.lessons_remaining, 0)
+        self.assertFalse(self.subscription.paid)
+        self.assertEqual(Visit.objects.count(), 1)
+
+    def test_visit_can_be_added_when_subscription_unpaid(self):
+        self.subscription.lessons_remaining = 0
+        self.subscription.paid = False
+        self.subscription.save()
+        self.client.login(username='admin', password='pass')
+        response = self.client.post(reverse('add_visit'), {'child_id': self.child.id})
+        self.assertRedirects(response, reverse('children_list'))
+        self.subscription.refresh_from_db()
+        self.assertEqual(self.subscription.lessons_remaining, self.sub_type.lessons_count - 1)
+        self.assertFalse(self.subscription.paid)
+        self.assertEqual(Visit.objects.count(), 1)
+
+    def test_visit_can_be_added_when_subscription_zero_but_marked_paid(self):
+        self.subscription.lessons_remaining = 0
+        self.subscription.paid = True
+        self.subscription.save()
+
+        self.client.login(username='admin', password='pass')
+        response = self.client.post(reverse('add_visit'), {'child_id': self.child.id})
+
+        self.assertRedirects(response, reverse('children_list'))
+        self.subscription.refresh_from_db()
+        self.assertEqual(self.subscription.lessons_remaining, self.sub_type.lessons_count - 1)
+        self.assertFalse(self.subscription.paid)
+        self.assertEqual(Visit.objects.count(), 1)
+
+    def test_mark_payment_refills_counter_when_zero(self):
+        self.subscription.lessons_remaining = 0
+        self.subscription.paid = False
+        self.subscription.save()
+
+        self.client.login(username='admin', password='pass')
+        response = self.client.post(reverse('mark_payment'), {'child_id': self.child.id})
+
+        self.assertRedirects(response, reverse('children_list'))
+        self.subscription.refresh_from_db()
+        self.assertTrue(self.subscription.paid)
+        self.assertEqual(self.subscription.lessons_remaining, self.sub_type.lessons_count)
+
+    def test_mark_payment_keeps_existing_counter(self):
+        self.subscription.lessons_remaining = 1
+        self.subscription.paid = False
+        self.subscription.save()
+
+        self.client.login(username='admin', password='pass')
+        response = self.client.post(reverse('mark_payment'), {'child_id': self.child.id})
+
+        self.assertRedirects(response, reverse('children_list'))
+        self.subscription.refresh_from_db()
+        self.assertTrue(self.subscription.paid)
+        self.assertEqual(self.subscription.lessons_remaining, 1)
+
+    def test_counter_rolls_over_and_continues_decrementing(self):
+        self.subscription.lessons_remaining = 0
+        self.subscription.paid = False
+        self.subscription.save()
+
+        self.client.login(username='admin', password='pass')
+        self.client.post(reverse('add_visit'), {'child_id': self.child.id})
+        self.subscription.refresh_from_db()
+        self.assertEqual(self.subscription.lessons_remaining, self.sub_type.lessons_count - 1)
+        self.assertFalse(self.subscription.paid)
+
+        self.client.post(reverse('add_visit'), {'child_id': self.child.id})
+        self.subscription.refresh_from_db()
+        self.assertEqual(self.subscription.lessons_remaining, 0)
+        self.assertFalse(self.subscription.paid)
+        self.assertEqual(Visit.objects.count(), 2)
+
+    def test_mark_payment_after_rollover_keeps_counter(self):
+        self.subscription.lessons_remaining = 0
+        self.subscription.paid = False
+        self.subscription.save()
+
+        self.client.login(username='admin', password='pass')
+        self.client.post(reverse('add_visit'), {'child_id': self.child.id})
+        self.subscription.refresh_from_db()
+        remaining_after_visit = self.subscription.lessons_remaining
+
+        response = self.client.post(reverse('mark_payment'), {'child_id': self.child.id})
+        self.assertRedirects(response, reverse('children_list'))
+        self.subscription.refresh_from_db()
+        self.assertTrue(self.subscription.paid)
+        self.assertEqual(self.subscription.lessons_remaining, remaining_after_visit)
+
+    def test_visit_after_manual_payment_uses_refilled_counter(self):
+        self.subscription.lessons_remaining = 0
+        self.subscription.paid = False
+        self.subscription.save()
+
+        self.client.login(username='admin', password='pass')
+        self.client.post(reverse('mark_payment'), {'child_id': self.child.id})
+
+        self.subscription.refresh_from_db()
+        self.assertEqual(self.subscription.lessons_remaining, self.sub_type.lessons_count)
+        self.assertTrue(self.subscription.paid)
+
+        self.client.post(reverse('add_visit'), {'child_id': self.child.id})
+        self.subscription.refresh_from_db()
+        self.assertEqual(self.subscription.lessons_remaining, self.sub_type.lessons_count - 1)
+        self.assertTrue(self.subscription.paid)

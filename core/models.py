@@ -59,20 +59,42 @@ class Subscription(models.Model):
     def used_lessons(self):
         return max(0, self.total_lessons - self.lessons_remaining)
 
-    def mark_paid_and_reset(self):
+    def mark_paid(self):
+        """Отмечает абонемент как оплаченный и пополняет счётчик при необходимости."""
+        updated_fields = {'paid'}
+        if self.lessons_remaining == 0:
+            total = self.total_lessons or 0
+            if total:
+                self.lessons_remaining = total
+                updated_fields.add('lessons_remaining')
         self.paid = True
-        self.lessons_remaining = self.total_lessons
-        self.price = self.sub_type.price
-        self.save()
+        self.save(update_fields=sorted(updated_fields))
 
     def add_visit(self):
-        """Уменьшает остаток на 1. Если стал 0 — делает paid=False (красный статус)."""
-        if self.lessons_remaining == 0:
-            return False
-        self.lessons_remaining -= 1
-        if self.lessons_remaining == 0:
-            self.paid = False
-        self.save()
+        """Засчитывает одно посещение и корректирует статус оплаты."""
+        updated_fields = set()
+
+        if self.lessons_remaining > 0:
+            self.lessons_remaining -= 1
+            updated_fields.add('lessons_remaining')
+            if self.lessons_remaining == 0 and self.paid:
+                self.paid = False
+                updated_fields.add('paid')
+        else:
+            # Начинаем новый цикл абонемента: фиксируем посещение и восстанавливаем
+            # счётчик, будто это первое занятие в новом абонементе.
+            total_lessons = self.total_lessons
+            if total_lessons:
+                self.lessons_remaining = max(total_lessons - 1, 0)
+            else:
+                self.lessons_remaining = 0
+            updated_fields.add('lessons_remaining')
+            if self.paid:
+                self.paid = False
+                updated_fields.add('paid')
+
+        if updated_fields:
+            self.save(update_fields=sorted(updated_fields))
         return True
 
 class TrainingSession(models.Model):
